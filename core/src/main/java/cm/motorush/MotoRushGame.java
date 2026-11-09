@@ -6,13 +6,15 @@ import cm.motorush.screen.GameOverScreen;
 import cm.motorush.screen.MenuScreen;
 import cm.motorush.screen.PauseScreen;
 import cm.motorush.screen.PlayScreen;
+import cm.motorush.storage.HighScoreStore;
 
 /**
  * Classe principale du jeu : cree les ecrans et gere les transitions.
- * Etape 7 : menu, partie, pause et game over.
+ * Etape 8 : menu, partie, pause, game over et meilleur score persistant.
  */
 public class MotoRushGame extends Game {
 
+    private HighScoreStore highScoreStore;
     private MenuScreen menuScreen;
     private PlayScreen playScreen;
     private PauseScreen pauseScreen;
@@ -20,8 +22,13 @@ public class MotoRushGame extends Game {
 
     @Override
     public void create() {
+        highScoreStore = new HighScoreStore();
         menuScreen = new MenuScreen(this);
         setScreen(menuScreen);
+    }
+
+    public int getHighScore() {
+        return highScoreStore.getHighScore();
     }
 
     /** Lance une partie neuve : aucun reste de la precedente. */
@@ -52,11 +59,12 @@ public class MotoRushGame extends Game {
         }
     }
 
-    /** Termine la partie (R13) et affiche le score final. */
+    /** Termine la partie (R13) et affiche le score final et le record. */
     public void endGame(int score) {
         disposePlayScreen();
         disposeGameOverScreen();
-        gameOverScreen = new GameOverScreen(this, score);
+        highScoreStore.submit(score);
+        gameOverScreen = new GameOverScreen(this, score, highScoreStore.getHighScore());
         setScreen(gameOverScreen);
     }
 

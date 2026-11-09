@@ -78,6 +78,11 @@ public abstract class AbstractMenuScreen implements Screen {
     /** Action de l'option choisie ; l'ecran peut avoir change au retour. */
     protected abstract void onOptionSelected(int index);
 
+    /** Met a jour le sous-titre, par exemple le meilleur score (etape 8). */
+    protected void setSubtitle(String subtitle) {
+        renderer.setSubtitle(subtitle);
+    }
+
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);

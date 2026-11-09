@@ -9,7 +9,8 @@ import cm.motorush.config.GameConfig;
 
 /**
  * Rendu commun des ecrans de menu (etape 7) : fond, titre, sous-titre
- * et options avec surbrillance. Les textes sont mis en page une seule fois.
+ * et options avec surbrillance. Les textes sont mis en page a la
+ * construction, et le sous-titre seulement lorsqu'il change (etape 8).
  */
 public class MenuRenderer {
 
@@ -19,7 +20,7 @@ public class MenuRenderer {
 
     private final GlyphLayout titleLayout;
     /** Nul quand l'ecran n'a pas de sous-titre. */
-    private final GlyphLayout subtitleLayout;
+    private GlyphLayout subtitleLayout;
     private final GlyphLayout[] optionLayouts;
 
     public MenuRenderer(String title, String subtitle, String[] options) {
@@ -31,9 +32,7 @@ public class MenuRenderer {
         this.titleLayout = new GlyphLayout(font, title);
 
         font.getData().setScale(GameConfig.MENU_FONT_SCALE);
-        this.subtitleLayout = subtitle == null || subtitle.isEmpty()
-                ? null
-                : new GlyphLayout(font, subtitle);
+        setSubtitle(subtitle);
 
         this.optionLayouts = new GlyphLayout[options.length];
         for (int i = 0; i < options.length; i++) {
@@ -81,6 +80,14 @@ public class MenuRenderer {
         }
 
         batch.end();
+    }
+
+    /** Remplace le sous-titre, par exemple pour le meilleur score a jour. */
+    public void setSubtitle(String subtitle) {
+        font.getData().setScale(GameConfig.MENU_FONT_SCALE);
+        this.subtitleLayout = subtitle == null || subtitle.isEmpty()
+                ? null
+                : new GlyphLayout(font, subtitle);
     }
 
     private static float optionCenterY(int index) {
