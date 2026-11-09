@@ -45,6 +45,16 @@ public final class GameConfig {
     /** Duree du glissement d'une voie a l'autre, en secondes. */
     public static final float LANE_CHANGE_DURATION = 0.16f;
 
+    // --- R5 : obstacles (voitures, camions, nids-de-poule) ---
+    public static final float CAR_WIDTH = 70f;
+    public static final float CAR_HEIGHT = 110f;
+    public static final float TRUCK_WIDTH = 90f;
+    public static final float TRUCK_HEIGHT = 180f;
+    public static final float POTHOLE_WIDTH = 80f;
+    public static final float POTHOLE_HEIGHT = 80f;
+    /** R7 (valeur de depart) : intervalle entre deux apparitions, en secondes. */
+    public static final float OBSTACLE_SPAWN_INTERVAL_INITIAL = 1.2f;
+
     // --- Defilement de la route ---
     /** R6 (valeur de depart) : vitesse de defilement en unites par seconde. */
     public static final float ROAD_SPEED_INITIAL = 250f;
@@ -61,4 +71,7 @@ public final class GameConfig {
     public static final Rgb DASH_COLOR = new Rgb(0.85f, 0.85f, 0.80f);
     /** Moto du joueur. */
     public static final Rgb BIKE_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
+    public static final Rgb CAR_COLOR = new Rgb(0.80f, 0.22f, 0.22f);
+    public static final Rgb TRUCK_COLOR = new Rgb(0.28f, 0.40f, 0.78f);
+    public static final Rgb POTHOLE_COLOR = new Rgb(0.08f, 0.08f, 0.09f);
 }

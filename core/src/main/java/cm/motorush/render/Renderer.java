@@ -1,10 +1,13 @@
 package cm.motorush.render;
 
+import java.util.List;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.Road;
 import cm.motorush.model.Moto;
+import cm.motorush.model.Obstacle;
+import cm.motorush.model.ObstacleType;
 
 /**
  * Rendu du jeu avec des formes colorees.
@@ -20,12 +23,13 @@ public class Renderer {
         this.shapes = new ShapeRenderer();
     }
 
-    public void draw(OrthographicCamera camera, Road road, Moto moto) {
+    public void draw(OrthographicCamera camera, Road road, List<Obstacle> obstacles, Moto moto) {
         shapes.setProjectionMatrix(camera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
         drawRoad();
         drawLaneDashes(road.getDashOffset());
+        drawObstacles(obstacles);
         drawMoto(moto);
 
         shapes.end();
@@ -48,6 +52,27 @@ public class Renderer {
                  y += DASH_PERIOD) {
                 shapes.rect(separatorX - halfWidth, y, GameConfig.DASH_WIDTH, GameConfig.DASH_LENGTH);
             }
+        }
+    }
+
+    private void drawObstacles(List<Obstacle> obstacles) {
+        for (int i = 0; i < obstacles.size(); i++) {
+            Obstacle obstacle = obstacles.get(i);
+            setColor(colorOf(obstacle.getType()));
+            shapes.rect(obstacle.getBounds().x, obstacle.getBounds().y,
+                    obstacle.getBounds().width, obstacle.getBounds().height);
+        }
+    }
+
+    private static GameConfig.Rgb colorOf(ObstacleType type) {
+        switch (type) {
+            case CAMION:
+                return GameConfig.TRUCK_COLOR;
+            case NID_DE_POULE:
+                return GameConfig.POTHOLE_COLOR;
+            case VOITURE:
+            default:
+                return GameConfig.CAR_COLOR;
         }
     }
 

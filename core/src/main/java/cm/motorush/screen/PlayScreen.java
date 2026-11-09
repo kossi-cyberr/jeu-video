@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import cm.motorush.MotoRushGame;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.Road;
+import cm.motorush.logic.Spawner;
 import cm.motorush.model.Moto;
 import cm.motorush.render.Renderer;
 
@@ -25,6 +26,7 @@ public class PlayScreen implements Screen {
     private final Renderer renderer;
     private final Moto moto;
     private final Road road;
+    private final Spawner spawner;
 
     public PlayScreen(MotoRushGame game) {
         this.game = game;
@@ -34,6 +36,7 @@ public class PlayScreen implements Screen {
         this.renderer = new Renderer();
         this.moto = new Moto();
         this.road = new Road();
+        this.spawner = new Spawner();
     }
 
     @Override
@@ -45,15 +48,17 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
+        float roadSpeed = GameConfig.ROAD_SPEED_INITIAL;
         moto.update(delta);
-        road.update(delta, GameConfig.ROAD_SPEED_INITIAL);
+        road.update(delta, roadSpeed);
+        spawner.update(delta, roadSpeed);
 
         ScreenUtils.clear(GameConfig.LETTERBOX_COLOR.r, GameConfig.LETTERBOX_COLOR.g,
                 GameConfig.LETTERBOX_COLOR.b, 1f);
         viewport.apply();
         camera.update();
 
-        renderer.draw(camera, road, moto);
+        renderer.draw(camera, road, spawner.getObstacles(), moto);
     }
 
     /** Fleches ou A/Q a gauche, D a droite : un appui = une voie (R3). */
