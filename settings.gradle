@@ -1,0 +1,2 @@
+// Projet Moto-Taxi Rush : deux modules, core (logique + rendu partages) et lwjgl3 (desktop).
+include 'core', 'lwjgl3'
