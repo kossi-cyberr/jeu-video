@@ -20,6 +20,10 @@ public class Moto {
     private float toX;
     /** Temps ecoule depuis le debut du glissement. */
     private float laneChangeTime;
+    /** Vies restantes (R9). */
+    private int lives;
+    /** Temps d'invincibilite restant, en secondes (R9). */
+    private float invincibleTime;
 
     public Moto() {
         reset();
@@ -31,6 +35,8 @@ public class Moto {
         fromX = x;
         toX = x;
         laneChangeTime = GameConfig.LANE_CHANGE_DURATION;
+        lives = GameConfig.LIVES_START;
+        invincibleTime = 0f;
         syncBounds();
     }
 
@@ -49,7 +55,26 @@ public class Moto {
         laneChangeTime = 0f;
     }
 
+    /**
+     * Retire une vie et demarre l'invincibilite (R9).
+     * Un choc pendant l'invincibilite, ou sans vie restante, est ignore :
+     * plusieurs obstacles touches la meme image ne coutent qu'une vie.
+     *
+     * @return vrai si une vie a ete perdue.
+     */
+    public boolean hit() {
+        if (invincibleTime > 0f || lives <= 0) {
+            return false;
+        }
+        lives--;
+        invincibleTime = GameConfig.INVINCIBILITY_DURATION;
+        return true;
+    }
+
     public void update(float delta) {
+        if (invincibleTime > 0f) {
+            invincibleTime = Math.max(0f, invincibleTime - delta);
+        }
         if (laneChangeTime < GameConfig.LANE_CHANGE_DURATION) {
             laneChangeTime += delta;
             if (laneChangeTime >= GameConfig.LANE_CHANGE_DURATION) {
@@ -93,5 +118,29 @@ public class Moto {
 
     public boolean isChangingLane() {
         return laneChangeTime < GameConfig.LANE_CHANGE_DURATION;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public boolean isInvincible() {
+        return invincibleTime > 0f;
+    }
+
+    public float getInvincibleTime() {
+        return invincibleTime;
+    }
+
+    /**
+     * Clignotement pendant l'invincibilite (R9) : la moto est alternee
+     * visible / cachee. Hors invincibilite elle est toujours visible.
+     */
+    public boolean isBlinkOn() {
+        if (invincibleTime <= 0f) {
+            return true;
+        }
+        int phase = (int) (invincibleTime / GameConfig.INVINCIBILITY_BLINK_INTERVAL);
+        return phase % 2 == 0;
     }
 }

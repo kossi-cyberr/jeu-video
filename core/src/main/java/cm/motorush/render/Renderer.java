@@ -31,6 +31,7 @@ public class Renderer {
         drawLaneDashes(road.getDashOffset());
         drawObstacles(obstacles);
         drawMoto(moto);
+        drawLives(moto.getLives());
 
         shapes.end();
     }
@@ -77,11 +78,24 @@ public class Renderer {
     }
 
     private void drawMoto(Moto moto) {
+        if (!moto.isBlinkOn()) {
+            return;
+        }
         setColor(GameConfig.BIKE_COLOR);
         shapes.rect(moto.getX() - GameConfig.BIKE_WIDTH / 2f,
                 moto.getY(),
                 GameConfig.BIKE_WIDTH,
                 GameConfig.BIKE_HEIGHT);
+    }
+
+    /** Vies restantes, en icones alignees en haut a gauche (R9). */
+    private void drawLives(int lives) {
+        float top = GameConfig.WORLD_HEIGHT - GameConfig.LIFE_ICON_MARGIN - GameConfig.LIFE_ICON_HEIGHT;
+        for (int i = 0; i < GameConfig.LIVES_START; i++) {
+            setColor(i < lives ? GameConfig.LIFE_FULL_COLOR : GameConfig.LIFE_LOST_COLOR);
+            float x = GameConfig.LIFE_ICON_MARGIN + i * (GameConfig.LIFE_ICON_WIDTH + GameConfig.LIFE_ICON_SPACING);
+            shapes.rect(x, top, GameConfig.LIFE_ICON_WIDTH, GameConfig.LIFE_ICON_HEIGHT);
+        }
     }
 
     private void setColor(GameConfig.Rgb color) {

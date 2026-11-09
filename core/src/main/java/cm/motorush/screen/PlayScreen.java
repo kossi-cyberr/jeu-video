@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import cm.motorush.MotoRushGame;
 import cm.motorush.config.GameConfig;
+import cm.motorush.logic.CollisionChecker;
 import cm.motorush.logic.Road;
 import cm.motorush.logic.Spawner;
 import cm.motorush.model.Moto;
@@ -52,6 +53,10 @@ public class PlayScreen implements Screen {
         moto.update(delta);
         road.update(delta, roadSpeed);
         spawner.update(delta, roadSpeed);
+
+        if (CollisionChecker.hitsAny(moto.getBounds(), spawner.getObstacles())) {
+            moto.hit();
+        }
 
         ScreenUtils.clear(GameConfig.LETTERBOX_COLOR.r, GameConfig.LETTERBOX_COLOR.g,
                 GameConfig.LETTERBOX_COLOR.b, 1f);

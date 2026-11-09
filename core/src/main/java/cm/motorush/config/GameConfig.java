@@ -55,6 +55,19 @@ public final class GameConfig {
     /** R7 (valeur de depart) : intervalle entre deux apparitions, en secondes. */
     public static final float OBSTACLE_SPAWN_INTERVAL_INITIAL = 1.2f;
 
+    // --- R9 : vies et invincibilite ---
+    public static final int LIVES_START = 3;
+    /** Duree d'invincibilite apres un choc, en secondes. */
+    public static final float INVINCIBILITY_DURATION = 1.5f;
+    /** Demi-periode du clignotement pendant l'invincibilite, en secondes. */
+    public static final float INVINCIBILITY_BLINK_INTERVAL = 0.1f;
+
+    // --- Affichage des vies (HUD) ---
+    public static final float LIFE_ICON_WIDTH = 18f;
+    public static final float LIFE_ICON_HEIGHT = 28f;
+    public static final float LIFE_ICON_SPACING = 8f;
+    public static final float LIFE_ICON_MARGIN = 16f;
+
     // --- Defilement de la route ---
     /** R6 (valeur de depart) : vitesse de defilement en unites par seconde. */
     public static final float ROAD_SPEED_INITIAL = 250f;
@@ -74,4 +87,8 @@ public final class GameConfig {
     public static final Rgb CAR_COLOR = new Rgb(0.80f, 0.22f, 0.22f);
     public static final Rgb TRUCK_COLOR = new Rgb(0.28f, 0.40f, 0.78f);
     public static final Rgb POTHOLE_COLOR = new Rgb(0.08f, 0.08f, 0.09f);
+    /** Vie restante dans le HUD. */
+    public static final Rgb LIFE_FULL_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
+    /** Vie perdue dans le HUD. */
+    public static final Rgb LIFE_LOST_COLOR = new Rgb(0.35f, 0.35f, 0.38f);
 }
