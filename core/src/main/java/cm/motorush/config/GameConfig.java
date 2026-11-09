@@ -85,6 +85,17 @@ public final class GameConfig {
     public static final float LIFE_ICON_SPACING = 8f;
     public static final float LIFE_ICON_MARGIN = 16f;
 
+    // --- Etape 7 : ecrans de menu ---
+    public static final float MENU_TITLE_Y = 620f;
+    public static final float MENU_SUBTITLE_Y = 540f;
+    /** Ordonnee du centre de la premiere option. */
+    public static final float MENU_FIRST_OPTION_Y = 400f;
+    public static final float MENU_OPTION_SPACING = 70f;
+    public static final float MENU_TITLE_FONT_SCALE = 2.4f;
+    public static final float MENU_FONT_SCALE = 1.6f;
+    public static final float MENU_HIGHLIGHT_WIDTH = 300f;
+    public static final float MENU_HIGHLIGHT_HEIGHT = 48f;
+
     // --- Defilement de la route ---
     /** R6 (valeur de depart) : vitesse de defilement en unites par seconde. */
     public static final float ROAD_SPEED_INITIAL = 250f;
@@ -116,4 +127,14 @@ public final class GameConfig {
     public static final Rgb PASSENGER_COLOR = new Rgb(0.95f, 0.80f, 0.15f);
     /** Score affiche en haut a droite. */
     public static final Rgb SCORE_COLOR = new Rgb(0.95f, 0.95f, 0.90f);
+    /** Fond des ecrans de menu. */
+    public static final Rgb MENU_BACKGROUND_COLOR = new Rgb(0.10f, 0.10f, 0.12f);
+    /** Titre des ecrans de menu. */
+    public static final Rgb MENU_TITLE_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
+    /** Texte des options non selectionnees. */
+    public static final Rgb MENU_TEXT_COLOR = new Rgb(0.85f, 0.85f, 0.80f);
+    /** Texte de l'option selectionnee, sur fond orange. */
+    public static final Rgb MENU_SELECTED_TEXT_COLOR = new Rgb(0.10f, 0.10f, 0.12f);
+    /** Surbrillance de l'option selectionnee. */
+    public static final Rgb MENU_HIGHLIGHT_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
 }

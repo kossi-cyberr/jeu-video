@@ -19,8 +19,8 @@ import cm.motorush.render.Renderer;
 
 /**
  * Ecran de jeu.
- * Etape 6 : route defilante, moto, obstacles, passagers (R10, R11),
- * score (R12) et difficulte progressive (R6, R7).
+ * Etape 7 : route defilante, moto, obstacles, passagers, score,
+ * difficulte progressive, pause (Echap) et fin de partie (R13).
  */
 public class PlayScreen implements Screen {
 
@@ -49,12 +49,16 @@ public class PlayScreen implements Screen {
 
     @Override
     public void show() {
-        // Pas de ressource a charger : le rendu utilise des formes.
+        // La fenetre a pu changer de taille pendant une pause.
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
 
     @Override
     public void render(float delta) {
-        handleInput();
+        if (handleInput()) {
+            // La partie vient d'etre mise en pause : rien d'autre a faire.
+            return;
+        }
 
         difficulty.update(delta);
         float roadSpeed = difficulty.getRoadSpeed();
@@ -70,6 +74,11 @@ public class PlayScreen implements Screen {
         if (CollisionChecker.hitsAny(moto.getBounds(), spawner.getObstacles())) {
             moto.hit();
         }
+        if (moto.getLives() <= 0) {
+            // R13 : la partie se termine, le PlayScreen est libere par le jeu.
+            game.endGame(scoreKeeper.getScore());
+            return;
+        }
 
         ScreenUtils.clear(GameConfig.LETTERBOX_COLOR.r, GameConfig.LETTERBOX_COLOR.g,
                 GameConfig.LETTERBOX_COLOR.b, 1f);
@@ -80,8 +89,16 @@ public class PlayScreen implements Screen {
                 moto, scoreKeeper.getScore());
     }
 
-    /** Fleches ou A/Q a gauche, D a droite : un appui = une voie (R3). */
-    private void handleInput() {
+    /**
+     * Echap met en pause ; fleches ou A/Q a gauche, D a droite (R3).
+     *
+     * @return vrai si la partie a ete mise en pause.
+     */
+    private boolean handleInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.pauseGame();
+            return true;
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)
                 || Gdx.input.isKeyJustPressed(Input.Keys.A)
                 || Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
@@ -90,6 +107,7 @@ public class PlayScreen implements Screen {
                 || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
             moto.changeLane(1);
         }
+        return false;
     }
 
     @Override
