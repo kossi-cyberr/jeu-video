@@ -11,13 +11,15 @@ import cm.motorush.MotoRushGame;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.CollisionChecker;
 import cm.motorush.logic.Road;
+import cm.motorush.logic.ScoreKeeper;
 import cm.motorush.logic.Spawner;
 import cm.motorush.model.Moto;
 import cm.motorush.render.Renderer;
 
 /**
  * Ecran de jeu.
- * Etape 2 : route a trois voies defilante, moto et changement de voie (R2 a R4).
+ * Etape 5 : route defilante, moto, obstacles, passagers (R10, R11)
+ * et score (R12).
  */
 public class PlayScreen implements Screen {
 
@@ -28,6 +30,7 @@ public class PlayScreen implements Screen {
     private final Moto moto;
     private final Road road;
     private final Spawner spawner;
+    private final ScoreKeeper scoreKeeper;
 
     public PlayScreen(MotoRushGame game) {
         this.game = game;
@@ -38,6 +41,7 @@ public class PlayScreen implements Screen {
         this.moto = new Moto();
         this.road = new Road();
         this.spawner = new Spawner();
+        this.scoreKeeper = new ScoreKeeper();
     }
 
     @Override
@@ -53,7 +57,11 @@ public class PlayScreen implements Screen {
         moto.update(delta);
         road.update(delta, roadSpeed);
         spawner.update(delta, roadSpeed);
+        scoreKeeper.update(delta);
 
+        if (spawner.collectPassager(moto.getBounds())) {
+            scoreKeeper.addPassenger();
+        }
         if (CollisionChecker.hitsAny(moto.getBounds(), spawner.getObstacles())) {
             moto.hit();
         }
@@ -63,7 +71,8 @@ public class PlayScreen implements Screen {
         viewport.apply();
         camera.update();
 
-        renderer.draw(camera, road, spawner.getObstacles(), moto);
+        renderer.draw(camera, road, spawner.getObstacles(), spawner.getPassagers(),
+                moto, scoreKeeper.getScore());
     }
 
     /** Fleches ou A/Q a gauche, D a droite : un appui = une voie (R3). */

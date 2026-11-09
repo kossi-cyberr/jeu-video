@@ -45,6 +45,12 @@ public final class GameConfig {
     /** Duree du glissement d'une voie a l'autre, en secondes. */
     public static final float LANE_CHANGE_DURATION = 0.16f;
 
+    // --- R10, R11 : passagers ---
+    public static final float PASSENGER_WIDTH = 50f;
+    public static final float PASSENGER_HEIGHT = 70f;
+    /** Une apparition sur quatre est un passager plutot qu'un obstacle (R10). */
+    public static final int PASSENGER_SPAWN_ONE_IN = 4;
+
     // --- R5 : obstacles (voitures, camions, nids-de-poule) ---
     public static final float CAR_WIDTH = 70f;
     public static final float CAR_HEIGHT = 110f;
@@ -61,6 +67,13 @@ public final class GameConfig {
     public static final float INVINCIBILITY_DURATION = 1.5f;
     /** Demi-periode du clignotement pendant l'invincibilite, en secondes. */
     public static final float INVINCIBILITY_BLINK_INTERVAL = 0.1f;
+
+    // --- R12 : score ---
+    public static final int SCORE_PER_SECOND = 10;
+    public static final int SCORE_PER_PASSENGER = 50;
+    /** Echelle du texte du score (police par defaut de libGDX). */
+    public static final float SCORE_FONT_SCALE = 1.4f;
+    public static final float SCORE_MARGIN = 16f;
 
     // --- Affichage des vies (HUD) ---
     public static final float LIFE_ICON_WIDTH = 18f;
@@ -91,4 +104,8 @@ public final class GameConfig {
     public static final Rgb LIFE_FULL_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
     /** Vie perdue dans le HUD. */
     public static final Rgb LIFE_LOST_COLOR = new Rgb(0.35f, 0.35f, 0.38f);
+    /** Passager a ramasser (R10). */
+    public static final Rgb PASSENGER_COLOR = new Rgb(0.95f, 0.80f, 0.15f);
+    /** Score affiche en haut a droite. */
+    public static final Rgb SCORE_COLOR = new Rgb(0.95f, 0.95f, 0.90f);
 }
