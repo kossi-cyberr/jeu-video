@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import cm.motorush.MotoRushGame;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.CollisionChecker;
+import cm.motorush.logic.DifficultyCurve;
 import cm.motorush.logic.Road;
 import cm.motorush.logic.ScoreKeeper;
 import cm.motorush.logic.Spawner;
@@ -18,8 +19,8 @@ import cm.motorush.render.Renderer;
 
 /**
  * Ecran de jeu.
- * Etape 5 : route defilante, moto, obstacles, passagers (R10, R11)
- * et score (R12).
+ * Etape 6 : route defilante, moto, obstacles, passagers (R10, R11),
+ * score (R12) et difficulte progressive (R6, R7).
  */
 public class PlayScreen implements Screen {
 
@@ -31,6 +32,7 @@ public class PlayScreen implements Screen {
     private final Road road;
     private final Spawner spawner;
     private final ScoreKeeper scoreKeeper;
+    private final DifficultyCurve difficulty;
 
     public PlayScreen(MotoRushGame game) {
         this.game = game;
@@ -42,6 +44,7 @@ public class PlayScreen implements Screen {
         this.road = new Road();
         this.spawner = new Spawner();
         this.scoreKeeper = new ScoreKeeper();
+        this.difficulty = new DifficultyCurve();
     }
 
     @Override
@@ -53,10 +56,12 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
-        float roadSpeed = GameConfig.ROAD_SPEED_INITIAL;
+        difficulty.update(delta);
+        float roadSpeed = difficulty.getRoadSpeed();
+
         moto.update(delta);
         road.update(delta, roadSpeed);
-        spawner.update(delta, roadSpeed);
+        spawner.update(delta, roadSpeed, difficulty.getSpawnInterval());
         scoreKeeper.update(delta);
 
         if (spawner.collectPassager(moto.getBounds())) {

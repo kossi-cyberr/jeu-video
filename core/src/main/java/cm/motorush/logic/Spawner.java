@@ -18,6 +18,7 @@ import cm.motorush.model.Passager;
  * ce qui garantit qu'au plus deux voies sont bloquees et qu'une voie
  * reste toujours franchissable.
  * R10 : une apparition sur quatre est un passager, qui ne bloque pas sa voie.
+ * L'intervalle entre deux apparitions est fourni par DifficultyCurve (R7).
  */
 public class Spawner {
 
@@ -39,11 +40,14 @@ public class Spawner {
         this.random = random;
     }
 
-    public void update(float delta, float speed) {
+    /**
+     * @param spawnInterval intervalle courant entre deux apparitions (R7).
+     */
+    public void update(float delta, float speed, float spawnInterval) {
         moveAndRemoveOffScreen(delta, speed);
 
         timer += delta;
-        if (timer >= GameConfig.OBSTACLE_SPAWN_INTERVAL_INITIAL && trySpawn()) {
+        if (timer >= spawnInterval && trySpawn()) {
             timer = 0f;
         }
     }

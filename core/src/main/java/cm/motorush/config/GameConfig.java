@@ -60,6 +60,10 @@ public final class GameConfig {
     public static final float POTHOLE_HEIGHT = 80f;
     /** R7 (valeur de depart) : intervalle entre deux apparitions, en secondes. */
     public static final float OBSTACLE_SPAWN_INTERVAL_INITIAL = 1.2f;
+    /** R7 : intervalle minimal entre deux apparitions, en secondes. */
+    public static final float OBSTACLE_SPAWN_INTERVAL_MIN = 0.45f;
+    /** R7 : reduction de l'intervalle, en secondes par seconde de jeu. */
+    public static final float OBSTACLE_SPAWN_INTERVAL_DECREASE_PER_SECOND = 0.0125f;
 
     // --- R9 : vies et invincibilite ---
     public static final int LIVES_START = 3;
@@ -84,6 +88,10 @@ public final class GameConfig {
     // --- Defilement de la route ---
     /** R6 (valeur de depart) : vitesse de defilement en unites par seconde. */
     public static final float ROAD_SPEED_INITIAL = 250f;
+    /** R6 : acceleration de la route, en unites par seconde et par seconde de jeu. */
+    public static final float ROAD_SPEED_INCREASE_PER_SECOND = 12f;
+    /** R6 : vitesse de defilement maximale, en unites par seconde. */
+    public static final float ROAD_SPEED_MAX = 700f;
     public static final float DASH_LENGTH = 40f;
     public static final float DASH_GAP = 40f;
     public static final float DASH_WIDTH = 6f;
