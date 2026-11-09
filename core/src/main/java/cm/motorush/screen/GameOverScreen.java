@@ -15,11 +15,12 @@ public class GameOverScreen extends AbstractMenuScreen {
     }
 
     @Override
-    protected void onOptionSelected(int index) {
+    protected boolean onOptionSelected(int index) {
         if (index == 0) {
             game.startNewGame();
         } else {
             game.showMenu();
         }
+        return true;
     }
 }

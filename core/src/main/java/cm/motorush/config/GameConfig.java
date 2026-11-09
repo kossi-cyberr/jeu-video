@@ -80,10 +80,14 @@ public final class GameConfig {
     public static final float SCORE_MARGIN = 16f;
 
     // --- Affichage des vies (HUD) ---
-    public static final float LIFE_ICON_WIDTH = 18f;
-    public static final float LIFE_ICON_HEIGHT = 28f;
+    public static final float LIFE_ICON_WIDTH = 22f;
+    public static final float LIFE_ICON_HEIGHT = 22f;
     public static final float LIFE_ICON_SPACING = 8f;
     public static final float LIFE_ICON_MARGIN = 16f;
+
+    // --- Etape 9 : musique et bruitages ---
+    public static final float MUSIC_VOLUME = 0.35f;
+    public static final float SOUND_VOLUME = 0.8f;
 
     // --- Etape 7 : ecrans de menu ---
     public static final float MENU_TITLE_Y = 620f;
@@ -119,9 +123,7 @@ public final class GameConfig {
     public static final Rgb CAR_COLOR = new Rgb(0.80f, 0.22f, 0.22f);
     public static final Rgb TRUCK_COLOR = new Rgb(0.28f, 0.40f, 0.78f);
     public static final Rgb POTHOLE_COLOR = new Rgb(0.08f, 0.08f, 0.09f);
-    /** Vie restante dans le HUD. */
-    public static final Rgb LIFE_FULL_COLOR = new Rgb(0.95f, 0.45f, 0.10f);
-    /** Vie perdue dans le HUD. */
+    /** Vie perdue dans le HUD (teinte du coeur). */
     public static final Rgb LIFE_LOST_COLOR = new Rgb(0.35f, 0.35f, 0.38f);
     /** Passager a ramasser (R10). */
     public static final Rgb PASSENGER_COLOR = new Rgb(0.95f, 0.80f, 0.15f);

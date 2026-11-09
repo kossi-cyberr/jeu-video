@@ -2,6 +2,8 @@ package cm.motorush;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import cm.motorush.assets.Assets;
+import cm.motorush.audio.AudioManager;
 import cm.motorush.screen.GameOverScreen;
 import cm.motorush.screen.MenuScreen;
 import cm.motorush.screen.PauseScreen;
@@ -10,10 +12,12 @@ import cm.motorush.storage.HighScoreStore;
 
 /**
  * Classe principale du jeu : cree les ecrans et gere les transitions.
- * Etape 8 : menu, partie, pause, game over et meilleur score persistant.
+ * Etape 9 : menu, partie, pause, game over, meilleur score et ressources.
  */
 public class MotoRushGame extends Game {
 
+    private Assets assets;
+    private AudioManager audio;
     private HighScoreStore highScoreStore;
     private MenuScreen menuScreen;
     private PlayScreen playScreen;
@@ -22,6 +26,8 @@ public class MotoRushGame extends Game {
 
     @Override
     public void create() {
+        assets = new Assets();
+        audio = new AudioManager(assets);
         highScoreStore = new HighScoreStore();
         menuScreen = new MenuScreen(this);
         setScreen(menuScreen);
@@ -31,11 +37,19 @@ public class MotoRushGame extends Game {
         return highScoreStore.getHighScore();
     }
 
+    public boolean isSoundEnabled() {
+        return audio.isEnabled();
+    }
+
+    public void toggleSound() {
+        audio.toggle();
+    }
+
     /** Lance une partie neuve : aucun reste de la precedente. */
     public void startNewGame() {
         disposeGameOverScreen();
         disposePlayScreen();
-        playScreen = new PlayScreen(this);
+        playScreen = new PlayScreen(this, assets, audio);
         setScreen(playScreen);
     }
 
@@ -110,5 +124,12 @@ public class MotoRushGame extends Game {
         }
         disposePlayScreen();
         disposeGameOverScreen();
+        if (audio != null) {
+            audio.stop();
+        }
+        if (assets != null) {
+            assets.dispose();
+            assets = null;
+        }
     }
 }

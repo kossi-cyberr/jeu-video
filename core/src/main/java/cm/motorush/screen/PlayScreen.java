@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import cm.motorush.MotoRushGame;
+import cm.motorush.assets.Assets;
+import cm.motorush.audio.AudioManager;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.CollisionChecker;
 import cm.motorush.logic.DifficultyCurve;
@@ -19,12 +21,13 @@ import cm.motorush.render.Renderer;
 
 /**
  * Ecran de jeu.
- * Etape 7 : route defilante, moto, obstacles, passagers, score,
- * difficulte progressive, pause (Echap) et fin de partie (R13).
+ * Etape 9 : route defilante, moto et objets en sprites, score, difficulte
+ * progressive, pause (Echap), fin de partie (R13) et sons.
  */
 public class PlayScreen implements Screen {
 
     private final MotoRushGame game;
+    private final AudioManager audio;
     private final OrthographicCamera camera;
     private final Viewport viewport;
     private final Renderer renderer;
@@ -34,12 +37,13 @@ public class PlayScreen implements Screen {
     private final ScoreKeeper scoreKeeper;
     private final DifficultyCurve difficulty;
 
-    public PlayScreen(MotoRushGame game) {
+    public PlayScreen(MotoRushGame game, Assets assets, AudioManager audio) {
         this.game = game;
+        this.audio = audio;
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         this.viewport.apply(true);
-        this.renderer = new Renderer();
+        this.renderer = new Renderer(assets);
         this.moto = new Moto();
         this.road = new Road();
         this.spawner = new Spawner();
@@ -70,9 +74,12 @@ public class PlayScreen implements Screen {
 
         if (spawner.collectPassager(moto.getBounds())) {
             scoreKeeper.addPassenger();
+            audio.playPassenger();
         }
         if (CollisionChecker.hitsAny(moto.getBounds(), spawner.getObstacles())) {
-            moto.hit();
+            if (moto.hit()) {
+                audio.playCollision();
+            }
         }
         if (moto.getLives() <= 0) {
             // R13 : la partie se termine, le PlayScreen est libere par le jeu.

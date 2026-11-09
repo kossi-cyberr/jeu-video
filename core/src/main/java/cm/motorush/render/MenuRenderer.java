@@ -82,6 +82,12 @@ public class MenuRenderer {
         batch.end();
     }
 
+    /** Remplace le libelle d'une option, par exemple l'etat du son. */
+    public void setOption(int index, String text) {
+        font.getData().setScale(GameConfig.MENU_FONT_SCALE);
+        optionLayouts[index] = new GlyphLayout(font, text);
+    }
+
     /** Remplace le sous-titre, par exemple pour le meilleur score a jour. */
     public void setSubtitle(String subtitle) {
         font.getData().setScale(GameConfig.MENU_FONT_SCALE);

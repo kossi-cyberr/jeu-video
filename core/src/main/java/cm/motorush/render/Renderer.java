@@ -2,10 +2,12 @@ package cm.motorush.render;
 
 import java.util.List;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import cm.motorush.assets.Assets;
 import cm.motorush.config.GameConfig;
 import cm.motorush.logic.Road;
 import cm.motorush.model.Moto;
@@ -14,13 +16,14 @@ import cm.motorush.model.ObstacleType;
 import cm.motorush.model.Passager;
 
 /**
- * Rendu du jeu avec des formes colorees.
- * Etape 5 : route, obstacles, passagers, moto et HUD (vies, score).
+ * Rendu du jeu (etape 9) : bitume et pointilles en formes, obstacles,
+ * passagers, moto et vies en sprites, score en texte.
  */
 public class Renderer {
 
     private static final float DASH_PERIOD = GameConfig.DASH_LENGTH + GameConfig.DASH_GAP;
 
+    private final Assets assets;
     private final ShapeRenderer shapes;
     private final SpriteBatch batch;
     private final BitmapFont font;
@@ -29,7 +32,8 @@ public class Renderer {
     /** Dernier score affiche : le texte n'est reconstruit que s'il change. */
     private int displayedScore = -1;
 
-    public Renderer() {
+    public Renderer(Assets assets) {
+        this.assets = assets;
         this.shapes = new ShapeRenderer();
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
@@ -42,17 +46,18 @@ public class Renderer {
                      List<Passager> passagers, Moto moto, int score) {
         shapes.setProjectionMatrix(camera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-
         drawRoad();
         drawLaneDashes(road.getDashOffset());
+        shapes.end();
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
         drawObstacles(obstacles);
         drawPassagers(passagers);
         drawMoto(moto);
         drawLives(moto.getLives());
-
-        shapes.end();
-
-        drawScore(camera, score);
+        drawScore(score);
+        batch.end();
     }
 
     private void drawRoad() {
@@ -75,33 +80,44 @@ public class Renderer {
         }
     }
 
+    /** Les nids-de-poule passent sous les vehicules. */
     private void drawObstacles(List<Obstacle> obstacles) {
         for (int i = 0; i < obstacles.size(); i++) {
-            Obstacle obstacle = obstacles.get(i);
-            setColor(colorOf(obstacle.getType()));
-            shapes.rect(obstacle.getBounds().x, obstacle.getBounds().y,
-                    obstacle.getBounds().width, obstacle.getBounds().height);
+            if (obstacles.get(i).getType() == ObstacleType.NID_DE_POULE) {
+                drawObstacle(obstacles.get(i));
+            }
         }
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (obstacles.get(i).getType() != ObstacleType.NID_DE_POULE) {
+                drawObstacle(obstacles.get(i));
+            }
+        }
+    }
+
+    private void drawObstacle(Obstacle obstacle) {
+        Texture texture;
+        switch (obstacle.getType()) {
+            case CAMION:
+                texture = assets.getTruckTexture();
+                break;
+            case NID_DE_POULE:
+                texture = assets.getPotholeTexture();
+                break;
+            case VOITURE:
+            default:
+                texture = assets.getCarTexture();
+                break;
+        }
+        batch.draw(texture, obstacle.getBounds().x, obstacle.getBounds().y,
+                obstacle.getBounds().width, obstacle.getBounds().height);
     }
 
     private void drawPassagers(List<Passager> passagers) {
-        setColor(GameConfig.PASSENGER_COLOR);
         for (int i = 0; i < passagers.size(); i++) {
             Passager passager = passagers.get(i);
-            shapes.rect(passager.getBounds().x, passager.getBounds().y,
+            batch.draw(assets.getPassengerTexture(),
+                    passager.getBounds().x, passager.getBounds().y,
                     passager.getBounds().width, passager.getBounds().height);
-        }
-    }
-
-    private static GameConfig.Rgb colorOf(ObstacleType type) {
-        switch (type) {
-            case CAMION:
-                return GameConfig.TRUCK_COLOR;
-            case NID_DE_POULE:
-                return GameConfig.POTHOLE_COLOR;
-            case VOITURE:
-            default:
-                return GameConfig.CAR_COLOR;
         }
     }
 
@@ -109,25 +125,33 @@ public class Renderer {
         if (!moto.isBlinkOn()) {
             return;
         }
-        setColor(GameConfig.BIKE_COLOR);
-        shapes.rect(moto.getX() - GameConfig.BIKE_WIDTH / 2f,
+        batch.draw(assets.getBikeTexture(),
+                moto.getX() - GameConfig.BIKE_WIDTH / 2f,
                 moto.getY(),
                 GameConfig.BIKE_WIDTH,
                 GameConfig.BIKE_HEIGHT);
     }
 
-    /** Vies restantes, en icones alignees en haut a gauche (R9). */
+    /** Vies restantes, en coeurs alignes en haut a gauche (R9). */
     private void drawLives(int lives) {
         float top = GameConfig.WORLD_HEIGHT - GameConfig.LIFE_ICON_MARGIN - GameConfig.LIFE_ICON_HEIGHT;
         for (int i = 0; i < GameConfig.LIVES_START; i++) {
-            setColor(i < lives ? GameConfig.LIFE_FULL_COLOR : GameConfig.LIFE_LOST_COLOR);
+            if (i < lives) {
+                batch.setColor(1f, 1f, 1f, 1f);
+            } else {
+                batch.setColor(GameConfig.LIFE_LOST_COLOR.r, GameConfig.LIFE_LOST_COLOR.g,
+                        GameConfig.LIFE_LOST_COLOR.b, 0.45f);
+            }
             float x = GameConfig.LIFE_ICON_MARGIN + i * (GameConfig.LIFE_ICON_WIDTH + GameConfig.LIFE_ICON_SPACING);
-            shapes.rect(x, top, GameConfig.LIFE_ICON_WIDTH, GameConfig.LIFE_ICON_HEIGHT);
+            batch.draw(assets.getHeartTexture(), x, top,
+                    GameConfig.LIFE_ICON_WIDTH, GameConfig.LIFE_ICON_HEIGHT);
         }
+        // Le texte du score ne doit pas heriter de la teinte des coeurs perdus.
+        batch.setColor(1f, 1f, 1f, 1f);
     }
 
     /** Score en haut a droite, aligne sur la marge du HUD des vies. */
-    private void drawScore(OrthographicCamera camera, int score) {
+    private void drawScore(int score) {
         if (score != displayedScore) {
             displayedScore = score;
             scoreText.setLength(0);
@@ -136,11 +160,7 @@ public class Renderer {
         }
         float x = GameConfig.WORLD_WIDTH - GameConfig.SCORE_MARGIN - scoreLayout.width;
         float y = GameConfig.WORLD_HEIGHT - GameConfig.SCORE_MARGIN;
-
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
         font.draw(batch, scoreLayout, x, y);
-        batch.end();
     }
 
     private void setColor(GameConfig.Rgb color) {
@@ -148,6 +168,7 @@ public class Renderer {
     }
 
     public void dispose() {
+        // Les textures, sons et musiques appartiennent a Assets.
         font.dispose();
         batch.dispose();
         shapes.dispose();
