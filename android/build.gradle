@@ -1,0 +1,70 @@
+plugins {
+  id 'com.android.application' version '9.5.1'
+}
+
+android {
+  namespace 'cm.motorush.android'
+  compileSdk 36
+
+  defaultConfig {
+    applicationId 'cm.motorush.android'
+    minSdk 24
+    targetSdk 36
+    versionCode 1
+    versionName projectVersion
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  sourceSets {
+    main {
+      // Memes ressources que le jeu desktop, sans copie.
+      assets.srcDirs = [rootProject.file('assets')]
+      // Natives libGDX extraites par copyAndroidNatives.
+      jniLibs.srcDirs = ['libs']
+    }
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+}
+
+configurations {
+  natives
+}
+
+dependencies {
+  implementation project(':core')
+  implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+
+  natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+  natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+  natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+}
+
+// Les artefacts natives sont des jars contenant les .so : on les range par ABI
+// dans libs/, que l'AGP empaquette dans l'APK.
+tasks.register('copyAndroidNatives') {
+  inputs.files(configurations.natives)
+  outputs.dirs(['arm64-v8a', 'armeabi-v7a', 'x86_64'].collect { file("libs/$it") })
+
+  doLast {
+    configurations.natives.files.each { jar ->
+      def abi = (jar.name =~ /natives-(.+)\.jar/)[0][1]
+      copy {
+        from zipTree(jar)
+        into file("libs/$abi")
+      }
+    }
+  }
+}
+
+tasks.named('preBuild').configure {
+  dependsOn 'copyAndroidNatives'
+}
