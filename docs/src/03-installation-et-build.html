@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Moto-Taxi Rush — Installation et compilation</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cover">
+  <p class="series">Documentation du jeu — volume 3 sur 4</p>
+  <h1>Installation et compilation</h1>
+  <p class="subtitle">Prérequis, commandes Gradle, APK Android et version bureau</p>
+  <div class="meta">
+    <span>Version 1.0.0</span>
+    <span>Auteur : Kossi</span>
+    <span>Novembre 2026</span>
+  </div>
+</div>
+
+<h2>1. Prérequis</h2>
+
+<table>
+  <tr><th>Besoin</th><th>Version</th><th>Usage</th></tr>
+  <tr><td>JDK</td><td>17 ou plus</td><td>Compiler <code>core</code>, <code>lwjgl3</code> et <code>android</code></td></tr>
+  <tr><td>Gradle</td><td>Fourni (wrapper 9.8)</td><td>Aucune installation : utiliser <code>./gradlew</code></td></tr>
+  <tr><td>Android SDK</td><td>API 36 + outils de build</td><td>Uniquement pour produire l'APK</td></tr>
+  <tr><td>Python 3 + Pillow</td><td>3.8+</td><td>Uniquement pour régénérer les images et les sons</td></tr>
+</table>
+
+<div class="note">
+Sans Android SDK, tout le reste fonctionne : les tests unitaires et la version bureau
+n'ont besoin que du JDK.
+</div>
+
+<h2>2. Récupérer le projet</h2>
+
+<pre>git clone https://github.com/kossi-cyberr/jeu-video.git
+cd jeu-video/Moto-Taxi-Rush</pre>
+
+<p>Le dépôt contient les sources, les assets et la documentation. Aucun fichier de build
+n'est versionné : tout se régénère.</p>
+
+<h2>3. Commandes essentielles</h2>
+
+<table>
+  <tr><th>Commande</th><th>Effet</th></tr>
+  <tr><td><code>./gradlew :core:test</code></td><td>Lance les 22 tests unitaires</td></tr>
+  <tr><td><code>./gradlew lwjgl3:run</code></td><td>Lance le jeu dans une fenêtre de bureau</td></tr>
+  <tr><td><code>./gradlew android:assembleDebug</code></td><td>Produit l'APK de test</td></tr>
+  <tr><td><code>./gradlew lwjgl3:dist</code></td><td>Fabrique un jar exécutable dans <code>lwjgl3/build/libs/</code></td></tr>
+  <tr><td><code>./gradlew clean</code></td><td>Efface tous les dossiers de build</td></tr>
+</table>
+
+<h3>Détail : tests</h3>
+<pre>./gradlew :core:test
+
+BUILD SUCCESSFUL
+Rapport detaille : core/build/reports/tests/test/index.html</pre>
+
+<h3>Détail : version bureau</h3>
+<pre>./gradlew lwjgl3:run</pre>
+<p>La fenêtre s'ouvre en 480 × 800. Sur une machine sans affichage (serveur, SSH sans
+redirection X), cette commande échoue : c'est une limite de la bibliothèque graphique,
+pas du jeu. Utiliser un poste avec écran, ou exporter la variable <code>DISPLAY</code>
+vers un serveur X actif.</p>
+
+<h3>Détail : APK Android</h3>
+<pre>./gradlew android:assembleDebug
+
+APK produit :
+android/build/outputs/apk/debug/android-debug.apk</pre>
+
+<p>Le script <code>copyAndroidNatives</code> s'exécute automatiquement avant la
+compilation : il extrait les bibliothèques natives de libGDX dans
+<code>android/libs/&lt;abi&gt;/</code>. Ces dossiers sont ignorés par Git, ils sont
+recréés à chaque build.</p>
+
+<h2>4. Installer sur un téléphone</h2>
+
+<h3>4.1 Par câble USB</h3>
+<ol>
+  <li>Activer le mode développeur et le débogage USB sur le téléphone.</li>
+  <li>Brancher le téléphone, accepter l'autorisation de débogage.</li>
+  <li>Installer :</li>
+</ol>
+<pre>adb install -r android/build/outputs/apk/debug/android-debug.apk</pre>
+
+<h3>4.2 Par fichier</h3>
+<ol>
+  <li>Copier l'APK sur le téléphone (câble, cloud, messagerie).</li>
+  <li>Ouvrir le fichier depuis le gestionnaire de fichiers.</li>
+  <li>Autoriser l'installation depuis cette source si Android le demande.</li>
+</ol>
+
+<h3>4.3 Compatibilité</h3>
+<table>
+  <tr><th>Élément</th><th>Valeur</th></tr>
+  <tr><td>Android minimum</td><td>7.0 (API 24)</td></tr>
+  <tr><td>Architectures</td><td>ARM 64 bits, ARM 32 bits, x86 64 (émulateurs)</td></tr>
+  <tr><td>Orientation</td><td>Portrait verrouillé</td></tr>
+  <tr><td>Permissions</td><td>Aucune (jeu entièrement hors ligne)</td></tr>
+</table>
+
+<h3>4.4 Désinstaller</h3>
+<pre>adb uninstall cm.motorush.android</pre>
+<p>Cela efface aussi le meilleur score et le réglage du son, stockés dans les préférences
+de l'application.</p>
+
+<h2 class="page-break">5. Régénérer les assets</h2>
+
+<p>Les images et les sons ne sont pas dessinés à la main : ils sont produits par script.
+Deux commandes suffisent.</p>
+
+<h3>5.1 Sprites et sons</h3>
+<pre>python3 tools/generate_assets.py</pre>
+<p>Régénère la moto, les voitures, le camion, les nids-de-poule, les passagers, le cœur,
+ainsi que la musique et les bruitages. Les fichiers produits sont identiques à chaque
+exécution (aucun aléatoire non fixé).</p>
+
+<h3>5.2 Médaillon photo du menu</h3>
+<pre>python3 tools/make_portrait.py</pre>
+<p>Recadre <code>tools/portrait_source.jpg</code> en médaillon rond de 320 px : buste
+détouré, fond flouté et assombri, anneau orange. La photo source n'est pas embarquée
+dans le jeu ; seul le médaillon l'est.</p>
+
+<div class="note">
+Après régénération, relancer <code>./gradlew android:assembleDebug</code> pour que l'APK
+contienne les nouveaux fichiers. La tâche <code>assets.txt</code> est recalculée
+automatiquement à chaque build.
+</div>
+
+<h2>6. Dépannage</h2>
+
+<table>
+  <tr><th>Symptôme</th><th>Cause probable</th><th>Solution</th></tr>
+  <tr><td><code>SDK location not found</code></td><td>Android SDK absent ou non déclaré</td><td>Créer <code>local.properties</code> avec <code>sdk.dir=/chemin/vers/android/sdk</code></td></tr>
+  <tr><td><code>Could not read Username for 'https://github.com'</code></td><td>Dépôt privé sans identifiants</td><td>Configurer un jeton d'accès personnel pour Git</td></tr>
+  <tr><td>Écran noir au lancement bureau</td><td>Pas de contexte OpenGL (machine sans affichage)</td><td>Lancer sur un poste graphique ; vérifier <code>DISPLAY</code></td></tr>
+  <tr><td>Version de Java non supportée</td><td>JDK trop ancien</td><td>Installer un JDK 17 et pointer <code>JAVA_HOME</code> dessus</td></tr>
+  <tr><td>APK installé mais écran blanc</td><td>Assets manquants dans l'APK</td><td>Vérifier que <code>assets/</code> est bien référencé puis reconstruire</td></tr>
+  <tr><td>Le son ne démarre pas</td><td>Option « Son : Non » mémorisée</td><td>La réactiver dans le menu principal</td></tr>
+</table>
+
+<h2>7. Structure d'un build</h2>
+<pre>build/                      sorties Gradle communes
+core/build/                 classes compilées et rapports de tests
+lwjgl3/build/libs/          jar exécutable (tâche dist)
+android/build/outputs/      APK debug
+android/libs/               natives extraites (ignorées par Git)</pre>
+
+<p>Ces dossiers sont exclus du versionnement : un clone propre ne contient que du code,
+des assets et de la documentation.</p>
+
+</body>
+</html>

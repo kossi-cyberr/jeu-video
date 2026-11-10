@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Moto-Taxi Rush — Architecture technique</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cover">
+  <p class="series">Documentation du jeu — volume 2 sur 4</p>
+  <h1>Architecture technique</h1>
+  <p class="subtitle">Modules, classes, boucle de jeu et rendu pseudo-3D</p>
+  <div class="meta">
+    <span>Version 1.0.0</span>
+    <span>Auteur : Kossi</span>
+    <span>Novembre 2026</span>
+  </div>
+</div>
+
+<h2>1. Vue d'ensemble</h2>
+
+<p>Le projet est une application <strong>libGDX 1.14.2</strong> en Java 17, découpée en trois
+modules Gradle. Le code de jeu vit dans <code>core</code> et ne dépend d'aucune plateforme :
+le même binaire logique tourne sur bureau et sur Android.</p>
+
+<table>
+  <tr><th>Module</th><th>Rôle</th><th>Dépendances</th></tr>
+  <tr><td><code>core</code></td><td>Logique, modèles, rendu, écrans, assets</td><td>libGDX (API seulement)</td></tr>
+  <tr><td><code>lwjgl3</code></td><td>Point d'entrée bureau (LWJGL 3.4.3), fenêtre 480 × 800</td><td><code>core</code>, backend desktop</td></tr>
+  <tr><td><code>android</code></td><td>Activité Android, icône, natives par ABI</td><td><code>core</code>, backend Android</td></tr>
+</table>
+
+<h3>Arborescence</h3>
+<pre>Moto-Taxi-Rush/
+├── assets/                  sprites, sons, musique (partagés)
+├── core/src/main/java/cm/motorush/
+│   ├── assets/              Assets.java
+│   ├── audio/               AudioManager.java
+│   ├── config/              GameConfig.java
+│   ├── logic/               Road, Spawner, ScoreKeeper, DifficultyCurve, CollisionChecker
+│   ├── model/               Moto, Obstacle, ObstacleType, Passager
+│   ├── render/              Renderer, Perspective, MenuRenderer
+│   ├── screen/              MenuScreen, PlayScreen, PauseScreen, GameOverScreen
+│   └── storage/             HighScoreStore.java
+├── core/src/test/java/      22 tests unitaires
+├── android/                 activité, manifeste, ressources
+├── lwjgl3/                  lanceur bureau
+├── docs/                    captures et présents PDF
+└── tools/                   génération des assets</pre>
+
+<h2>2. Séparation logique / rendu</h2>
+
+<p>La règle structurante du projet : <strong>aucune classe de logique ne connaît le rendu</strong>.
+<code>Moto</code>, <code>Spawner</code>, <code>Road</code>, <code>ScoreKeeper</code>,
+<code>DifficultyCurve</code> et <code>CollisionChecker</code> ne manipulent que des nombres
+et des <code>Rectangle</code> (une classe mathématique de libGDX). Résultat : ces classes
+sont testables sans écran, sans OpenGL et sans assets, ce qui explique la présence de tests
+unitaires rapides sur la difficulté, le score et les collisions.</p>
+
+<table>
+  <tr><th>Couche</th><th>Classes</th><th>Connaît</th></tr>
+  <tr><td>Modèle</td><td><code>Moto</code>, <code>Obstacle</code>, <code>Passager</code>, <code>ObstacleType</code></td><td>Rien d'autre que <code>GameConfig</code></td></tr>
+  <tr><td>Logique</td><td><code>Road</code>, <code>Spawner</code>, <code>ScoreKeeper</code>, <code>DifficultyCurve</code>, <code>CollisionChecker</code></td><td>Modèle et configuration</td></tr>
+  <tr><td>Rendu</td><td><code>Renderer</code>, <code>Perspective</code>, <code>MenuRenderer</code></td><td>Modèle, logique, assets</td></tr>
+  <tr><td>Orchestration</td><td><code>PlayScreen</code>, écrans de menu, <code>MotoRushGame</code></td><td>Tout, mais reste mince</td></tr>
+</table>
+
+<h2>3. Rôle de chaque classe</h2>
+
+<table>
+  <tr><th>Classe</th><th>Responsabilité</th></tr>
+  <tr><td><code>MotoRushGame</code></td><td>Point d'entrée <code>Game</code> : crée les assets, l'audio, le stockage, instancie les écrans et gère les transitions (jouer, pause, fin, menu, quitter).</td></tr>
+  <tr><td><code>PlayScreen</code></td><td>Boucle de jeu : lit les entrées, avance la difficulté, la route, la moto, les apparitions et le score, gère collisions et ramassages, puis délègue le dessin au <code>Renderer</code>.</td></tr>
+  <tr><td><code>AbstractMenuScreen</code></td><td>Base commune des menus : navigation clavier et tactile (glissement vertical), validation, mise à jour des libellés.</td></tr>
+  <tr><td><code>MenuRenderer</code></td><td>Dessin d'un menu générique : fond, titre, sous-titre, options, signature, médaillon photo optionnel.</td></tr>
+  <tr><td><code>Moto</code></td><td>Voie courante, glissement interpolé, vies, invincibilité, clignotement, rectangle de collision.</td></tr>
+  <tr><td><code>Spawner</code></td><td>Création, descente et recyclage des obstacles et passagers, avec la règle des deux voies libres.</td></tr>
+  <tr><td><code>Road</code></td><td>Décalage des pointillés et distance totale parcourue (sert à caler les lampadaires).</td></tr>
+  <tr><td><code>DifficultyCurve</code></td><td>Vitesse, intervalle d'apparition et cycles d'heures de pointe en fonction du temps écoulé.</td></tr>
+  <tr><td><code>ScoreKeeper</code></td><td>Points de survie, points de course et combo.</td></tr>
+  <tr><td><code>CollisionChecker</code></td><td>Test rectangle contre rectangle, sans tolérance de bord.</td></tr>
+  <tr><td><code>Perspective</code></td><td>Projection pseudo-3D : profondeur, ordonnée écran, échelle, abscisse, suivi de caméra.</td></tr>
+  <tr><td><code>Renderer</code></td><td>Dessin complet de la scène : ciel, soleil, skyline, sol, route, lampadaires, sprites triés, particules, HUD.</td></tr>
+  <tr><td><code>Assets</code></td><td>Chargement unique des textures et sons via <code>AssetManager</code>, filtrage linéaire, libération en fin de vie.</td></tr>
+  <tr><td><code>AudioManager</code></td><td>Musique en boucle, bruitages de choc et de ramassage (hauteur montante), réglage persistant du son.</td></tr>
+  <tr><td><code>HighScoreStore</code></td><td>Meilleur score persistant via libGDX <code>Preferences</code>.</td></tr>
+  <tr><td><code>GameConfig</code></td><td>Toutes les constantes numériques et couleurs, organisées par étape.</td></tr>
+</table>
+
+<h2 class="page-break">4. Le rendu pseudo-3D</h2>
+
+<p>Aucune vraie caméra 3D n'est utilisée : tout est dessiné en 2D avec une projection
+manuelle en <code>1 / distance</code>. L'avantage est décisif — les voies, les collisions
+et le score restent calculés dans un plan 2D simple, donc les tests et l'équilibrage ne
+sont pas touchés par le rendu.</p>
+
+<h3>4.1 Principe</h3>
+<p>La caméra est posée derrière la moto, à hauteur fixe, et regarde vers un point de fuite
+situé sur la ligne d'horizon. Un point deux fois plus loin paraît deux fois plus petit et
+deux fois plus proche de l'horizon.</p>
+
+<pre>profondeur  d = y_monde − (BIKE_Y − CAMERA_BEHIND)
+ordonnée    y_écran = HORIZON_Y − (HORIZON_Y − NEAR_Y) × NEAR_DEPTH / d
+échelle     s = SCALE_NEAR × NEAR_DEPTH / d
+abscisse    x_écran = WORLD_WIDTH / 2 + (x_monde − x_caméra) × s</pre>
+
+<p>Avec les valeurs du jeu : <code>HORIZON_Y = 470</code>, <code>NEAR_Y = 150</code>,
+<code>SCALE_NEAR = 1,2</code>, <code>CAMERA_BEHIND = 220</code>,
+<code>DRAW_DISTANCE = 1600</code>, <code>CAMERA_CULL_DEPTH = 40</code>.</p>
+
+<h3>4.2 Conséquences visuelles</h3>
+<ul>
+  <li>La moto tombe exactement sur <code>NEAR_Y</code> avec l'échelle 1,2 ; elle sert de
+      référence stable à l'écran.</li>
+  <li>L'horizon est une asymptote : rien ne le dépasse, ce qui évite les objets qui
+      « flottent » au-dessus du ciel.</li>
+  <li>Un objet dont la profondeur passe sous 40 unités est derrière la caméra : il n'est
+      plus dessiné, ce qui évite les retournements d'échelle.</li>
+  <li>La caméra suit la moto avec un retard (<code>CAMERA_FOLLOW_RATE = 7</code>) : lors
+      d'un changement de voie, la moto se décale visiblement dans l'axe de la route au
+      lieu de coller au centre de l'écran.</li>
+</ul>
+
+<h3>4.3 Ordre de dessin</h3>
+<p>La scène est découpée en couches, dessinées dans cet ordre :</p>
+<ol>
+  <li>Ciel en 24 bandes, du bleu nuit au rose de l'horizon.</li>
+  <li>Soleil et son halo (trois anneaux translucides).</li>
+  <li>Skyline : 16 immeubles de hauteur variable, avec fenêtres allumées et parallaxe
+      horizontale de 0,12.</li>
+  <li>Sol de chaque côté de la route.</li>
+  <li>Route en trapèze, bandes de bord, pointillés des voies.</li>
+  <li>Lampadaires tous les 200 unités, avec halo lumineux.</li>
+  <li>Obstacles et passagers triés du plus lointain au plus proche.</li>
+  <li>Moto du joueur, toujours devant.</li>
+  <li>Particules, puis HUD en projection orthographique classique.</li>
+</ol>
+
+<div class="note">
+Le tri des sprites est refait à chaque image : les objets sont triés par profondeur
+décroissante avant dessin, ce qui garantit qu'un camion lointain ne recouvre jamais un
+passager proche. Sans ce tri, deux sprites qui se chevauchent scintilleraient au passage
+de l'un devant l'autre.
+</div>
+
+<h3>4.4 Décor et effets</h3>
+<table>
+  <tr><th>Élément</th><th>Mise en œuvre</th></tr>
+  <tr><td>Soleil couchant</td><td>Disque orange + trois anneaux de halo d'opacité croissante</td></tr>
+  <tr><td>Fenêtres éclairées</td><td>Grille de 3 × 2 cases par immeuble, motif déterministe (aucun clignotement)</td></tr>
+  <tr><td>Halos de lampadaires</td><td>Halo translucide autour de l'ampoule, opacité faible pour ne pas écraser la route</td></tr>
+  <tr><td>Tremblement d'écran</td><td>0,35 s après un choc, amplitude 12 unités, appliqué à la caméra de rendu</td></tr>
+  <tr><td>Particules</td><td>14 éclats projetés, gravité 700 u/s², durée de vie 0,45 s, convertis monde → écran</td></tr>
+</table>
+
+<h2>5. Boucle de jeu</h2>
+
+<p>Chaque image de <code>PlayScreen.render</code> suit toujours le même ordre, ce qui évite
+les dépendances cachées entre systèmes :</p>
+
+<pre>1. entrées (pause, changement de voie, tactile)
+2. difficulté      → vitesse de route, intervalle, heure de pointe
+3. moto            → glissement, invincibilité
+4. caméra 3D       → recalage amorti sur la moto
+5. route           → décalage des pointillés
+6. apparitions     → descente, recyclage, créations
+7. score           → points de survie
+8. ramassages      → passagers touchés, combo, particules
+9. collisions      → vies, invincibilité, secousse, son
+10. fin de partie  → si plus de vie
+11. dessin         → Renderer puis HUD</pre>
+
+<p>Point important : la caméra est mise à jour <em>avant</em> la route et les apparitions,
+mais <em>après</em> la moto. La projection utilise donc la position de caméra de l'image
+courante, sans décalage d'une image entre la moto et son environnement.</p>
+
+<h2>6. Persistance</h2>
+<p>Aucune base de données : libGDX <code>Preferences</code> fournit un petit magasin clé/valeur
+propre à chaque plateforme (fichier XML sur bureau, <code>SharedPreferences</code> sur Android).</p>
+<table>
+  <tr><th>Fichier</th><th>Clé</th><th>Type</th><th>Écriture</th></tr>
+  <tr><td><code>moto-taxi-rush</code></td><td><code>highScore</code></td><td>entier</td><td>À la fin de chaque partie qui bat le record</td></tr>
+  <tr><td><code>moto-taxi-rush</code></td><td><code>soundEnabled</code></td><td>booléen</td><td>À chaque bascule depuis le menu ou la pause</td></tr>
+</table>
+
+<h2>7. Module Android</h2>
+<table>
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Identifiant</td><td><code>cm.motorush.android</code></td></tr>
+  <tr><td>Activité</td><td><code>cm.motorush.android.AndroidLauncher</code></td></tr>
+  <tr><td>SDK minimum / cible</td><td>24 (Android 7.0) / 36</td></tr>
+  <tr><td>Orientation</td><td>Portrait, plein écran sans barre de titre</td></tr>
+  <tr><td>ABI embarquées</td><td><code>arm64-v8a</code>, <code>armeabi-v7a</code>, <code>x86_64</code></td></tr>
+  <tr><td>Assets</td><td>Le dossier <code>assets/</code> du projet, sans copie</td></tr>
+</table>
+<p>Les bibliothèques natives de libGDX sont livrées sous forme de jars : la tâche
+<code>copyAndroidNatives</code> les décompresse dans <code>android/libs/&lt;abi&gt;/</code>
+avant chaque build, et le plugin Android les empaquette dans l'APK.</p>
+
+<h2>8. Correspondance exigences / code</h2>
+<table>
+  <tr><th>Exigence</th><th>Implémentation</th></tr>
+  <tr><td>R1 — écran logique fixe</td><td><code>WORLD_WIDTH/HEIGHT</code> + <code>FitViewport</code></td></tr>
+  <tr><td>R2 — trois voies égales</td><td><code>LANE_COUNT</code>, <code>LANE_WIDTH</code>, <code>Moto.laneCenterX</code></td></tr>
+  <tr><td>R3 — moto et déplacement d'une voie</td><td><code>Moto.changeLane</code>, interpolation sur 0,16 s</td></tr>
+  <tr><td>R4 — pas de sortie de route</td><td><code>Moto.changeLane</code> ignore une cible hors bornes</td></tr>
+  <tr><td>R5 — voitures, camions, nids-de-poule</td><td><code>Obstacle</code>, <code>ObstacleType</code>, <code>Spawner</code></td></tr>
+  <tr><td>R6 — accélération de la route</td><td><code>DifficultyCurve.getRoadSpeed</code></td></tr>
+  <tr><td>R7 — apparitions plus fréquentes</td><td><code>DifficultyCurve.getSpawnInterval</code></td></tr>
+  <tr><td>R8 — une voie toujours libre</td><td><code>Spawner.trySpawn</code> (règle des deux voies libres)</td></tr>
+  <tr><td>R9 — vies et invincibilité</td><td><code>Moto.hit</code>, <code>CollisionChecker</code></td></tr>
+  <tr><td>R10 — passagers</td><td><code>Passager</code>, <code>Spawner.collectPassager</code></td></tr>
+  <tr><td>R11 — passager raté sans pénalité</td><td><code>Spawner.moveAndRemoveOffScreen</code></td></tr>
+  <tr><td>R12 — score</td><td><code>ScoreKeeper</code></td></tr>
+  <tr><td>R13 — fin de partie et meilleur score</td><td><code>PlayScreen</code>, <code>GameOverScreen</code>, <code>HighScoreStore</code></td></tr>
+</table>
+
+<h2>9. Choix techniques assumés</h2>
+<ul>
+  <li><strong>Pas de vraie 3D.</strong> Une projection manuelle suffit pour l'effet recherché
+      et garde toute la logique en 2D, donc testable.</li>
+  <li><strong>Pas d'<code>AssetManager</code> asynchrone.</strong> Les assets sont chargés au
+      démarrage en une fois : le jeu est petit, un écran de chargement serait inutile.</li>
+  <li><strong>Pas d'allocation par image.</strong> Les listes, tableaux et rectangles sont
+      réutilisés ; le tri des sprites se fait sur une liste pré-existante.</li>
+  <li><strong>Configuration centralisée.</strong> <code>GameConfig</code> rassemble toutes les
+      valeurs, y compris les couleurs, pour régler le jeu sans chercher dans le code.</li>
+  <li><strong>Sprites générés.</strong> Les images sont produites par script plutôt que
+      dessinées à la main : le style reste homogène et reproductible.</li>
+</ul>
+
+</body>
+</html>

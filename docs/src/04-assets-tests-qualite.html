@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Moto-Taxi Rush — Assets, tests et qualité</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cover">
+  <p class="series">Documentation du jeu — volume 4 sur 4</p>
+  <h1>Assets, tests et qualité</h1>
+  <p class="subtitle">Origine des fichiers, couverture de tests et limites connues</p>
+  <div class="meta">
+    <span>Version 1.0.0</span>
+    <span>Auteur : Kossi</span>
+    <span>Novembre 2026</span>
+  </div>
+</div>
+
+<h2>1. Inventaire des assets</h2>
+
+<p>Le jeu est léger : 7 images et 3 fichiers audio. Tous les éléments graphiques sont des
+sprites en PNG avec transparence, filtrés en linéaire pour rester nets une fois mis à
+l'échelle par la projection.</p>
+
+<table>
+  <tr><th>Fichier</th><th>Taille</th><th>Origine</th><th>Licence</th></tr>
+  <tr><td><code>assets/sprites/bike.png</code></td><td>60 × 100</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/car.png</code></td><td>70 × 110</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/truck.png</code></td><td>90 × 180</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/pothole.png</code></td><td>80 × 80</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/passenger.png</code></td><td>50 × 70</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/heart.png</code></td><td>22 × 22</td><td>Généré par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sprites/portrait.png</code></td><td>320 × 320</td><td>Généré par <code>tools/make_portrait.py</code></td><td>Photo personnelle de l'auteur</td></tr>
+  <tr><td><code>assets/sounds/crash.wav</code></td><td>court</td><td>Synthétisé par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/sounds/pickup.wav</code></td><td>court</td><td>Synthétisé par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+  <tr><td><code>assets/music/theme.wav</code></td><td>boucle</td><td>Synthétisé par <code>tools/generate_assets.py</code></td><td>CC0 1.0</td></tr>
+</table>
+
+<p>Le détail des licences est tenu à jour dans <code>ASSETS.md</code>, à la racine du projet.
+La photo source du médaillon (<code>tools/portrait_source.jpg</code>) sert uniquement à
+régénérer l'image : elle n'est pas copiée dans <code>assets/</code>, donc pas embarquée
+dans l'APK.</p>
+
+<h3>1.1 Points de vigilance sur les sprites</h3>
+<ul>
+  <li><strong>Vue de dos.</strong> Tous les véhicules sont dessinés tels qu'on les voit
+      depuis la caméra, derrière la moto : un sprite de face serait incohérent.</li>
+  <li><strong>Hauteur d'ancrage.</strong> Chaque sprite est ancré par le bas ; le rendu
+      positionne son bord inférieur sur l'ordonnée projetée du sol.</li>
+  <li><strong>Transparence.</strong> Les coins transparents sont importants pour les
+      passagers et les nids-de-poule, qui doivent laisser voir la route.</li>
+</ul>
+
+<h2>2. Tests automatisés</h2>
+
+<p>Le projet compte <strong>22 tests unitaires</strong> répartis en 5 classes, tous dans
+<code>core/src/test/java</code>. Ils ne demandent ni écran, ni OpenGL, ni assets : ils
+s'exécutent en quelques secondes.</p>
+
+<table>
+  <tr><th>Classe</th><th>Tests</th><th>Ce qui est vérifié</th></tr>
+  <tr><td><code>DifficultyCurveTest</code></td><td>9</td><td>Vitesse initiale et plafond, décroissance de l'intervalle, heures de pointe et renforcement progressif, remise à zéro</td></tr>
+  <tr><td><code>ScoreKeeperTest</code></td><td>4</td><td>Points de survie par seconde, gain par passager, multiplicateur de combo plafonné, remise à zéro après un choc</td></tr>
+  <tr><td><code>PerspectiveTest</code></td><td>6</td><td>Moto pile sur la ligne proche à l'échelle prévue, objets lointains qui montent vers l'horizon et rétrécissent, objets derrière la caméra ignorés, retard de suivi de caméra</td></tr>
+  <tr><td><code>SpawnerTest</code></td><td>1</td><td>Règle des deux voies libres : jamais plus de deux voies bloquées</td></tr>
+  <tr><td><code>MotoTest</code></td><td>2</td><td>Déplacement d'une voie et blocage aux bords, perte d'une vie et invincibilité</td></tr>
+</table>
+
+<h3>2.1 Lancer les tests</h3>
+<pre>./gradlew :core:test
+
+BUILD SUCCESSFUL</pre>
+<p>Le rapport HTML détaillé est écrit dans
+<code>core/build/reports/tests/test/index.html</code> : il liste chaque test, sa durée et
+la pile d'appel en cas d'échec.</p>
+
+<h3>2.2 Ce que les tests protègent</h3>
+<ul>
+  <li>Les <strong>règles de difficulté</strong> : un réglage maladroit dans
+      <code>GameConfig</code> casse un test avant d'atteindre un téléphone.</li>
+  <li>La <strong>projection</strong> : c'est la partie la plus mathématique du projet, et la
+      plus facile à casser en retouchant le décor.</li>
+  <li>Le <strong>score et le combo</strong> : une erreur d'arrondi ou de plafond se voit tout
+      de suite.</li>
+  <li>La <strong>générabilité</strong> : la règle « une voie toujours libre » est vérifiée
+      plutôt que supposée.</li>
+</ul>
+
+<h2 class="page-break">3. Vérification manuelle</h2>
+
+<p>Les tests ne couvrent pas le rendu. La checklist ci-dessous sert de recette avant de
+livrer une version.</p>
+
+<table>
+  <tr><th>#</th><th>À vérifier</th><th>Attendu</th></tr>
+  <tr><td>1</td><td>Menu principal</td><td>Titre, médaillon, meilleur score, trois options lisibles</td></tr>
+  <tr><td>2</td><td>Navigation clavier et tactile</td><td>Surbrillance qui suit la sélection, glissement vertical qui change d'option</td></tr>
+  <tr><td>3</td><td>Démarrage d'une partie</td><td>Route qui défile, moto sur la voie centrale, HUD complet</td></tr>
+  <tr><td>4</td><td>Changement de voie</td><td>Glissement fluide, impossible de sortir de la route</td></tr>
+  <tr><td>5</td><td>Collision</td><td>Une vie perdue, clignotement, secousse, bruitage</td></tr>
+  <tr><td>6</td><td>Passager</td><td>Gain de points, étincelles, combo affiché, bruitage plus aigu</td></tr>
+  <tr><td>7</td><td>Heure de pointe</td><td>Bandeau affiché après 30 s, route visiblement plus rapide</td></tr>
+  <tr><td>8</td><td>Pause</td><td>Le jeu se fige réellement, reprise sans saut de caméra</td></tr>
+  <tr><td>9</td><td>Fin de partie</td><td>Score et record corrects, retour au menu fonctionnel</td></tr>
+  <tr><td>10</td><td>Persistance</td><td>Record et réglage du son conservés après fermeture</td></tr>
+</table>
+
+<h2>4. Limites connues</h2>
+<ul>
+  <li><strong>Rendu non testé automatiquement.</strong> Aucun test d'image : le décor est
+      validé par capture d'écran et inspection visuelle.</li>
+  <li><strong>Pas d'intégration continue.</strong> Les tests et le build sont lancés
+      localement, pas par GitHub Actions.</li>
+  <li><strong>Un seul profil de difficulté.</strong> Pas de mode facile ou difficile.</li>
+  <li><strong>Pas de sauvegarde de partie en cours.</strong> Quitter pendant une course la
+      perd, seul le record survit.</li>
+  <li><strong>APK non versionné.</strong> L'APK est un artefact de build exclu du dépôt ;
+      il est produit par <code>android:assembleDebug</code>.</li>
+</ul>
+
+<h2>5. Feuille de route</h2>
+<table>
+  <tr><th>Piste</th><th>Bénéfice attendu</th></tr>
+  <tr><td>Intégration continue (tests + APK)</td><td>Détecter une régression à chaque envoi</td></tr>
+  <tr><td>Publication de l'APK en release</td><td>Téléchargement direct sans outillage</td></tr>
+  <tr><td>Modes de difficulté</td><td>Accessibilité pour les nouveaux joueurs</td></tr>
+  <tr><td>Variantes de décor (pluie, nuit, tunnel)</td><td>Renouveler la sensation de progression</td></tr>
+  <tr><td>Tableau des scores local par difficulté</td><td>Comparer ses runs sans compte en ligne</td></tr>
+  <tr><td>Retours haptiques sur mobile</td><td>Renforcer la sensation de choc</td></tr>
+</table>
+
+<h2>6. Résumé de la livraison</h2>
+<div class="kpi">
+  <div><strong>22</strong><span>tests</span></div>
+  <div><strong>22</strong><span>classes Java</span></div>
+  <div><strong>10</strong><span>assets</span></div>
+  <div><strong>4,9 Mo</strong><span>APK</span></div>
+</div>
+
+<p>Le jeu est complet pour son périmètre : une boucle arcade lisible, une difficulté qui
+évolue sur la durée, un décor cohérent, un son, un score persistant, et une base de code
+séparée entre logique testable et rendu.</p>
+
+</body>
+</html>

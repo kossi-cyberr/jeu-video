@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Moto-Taxi Rush — Présentation et règles</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cover">
+  <p class="series">Documentation du jeu — volume 1 sur 4</p>
+  <h1>Moto-Taxi Rush</h1>
+  <p class="subtitle">Présentation, univers et règles de jeu</p>
+  <div class="meta">
+    <span>Version 1.0.0</span>
+    <span>Auteur : Kossi</span>
+    <span>Novembre 2026</span>
+  </div>
+</div>
+
+<h2>1. Le jeu en bref</h2>
+
+<p><strong>Moto-Taxi Rush</strong> est un jeu d'arcade en portrait : vous pilotez une moto-taxi
+sur une avenue de ville au crépuscule. La route défile sans fin, le trafic se densifie et
+les passagers tendent le bras sur le bas-côté. Il faut tenir le plus longtemps possible,
+encaisser le plus de courses et ne pas finir sous un camion.</p>
+
+<p>Une partie dure de quelques dizaines de secondes pour un débutant à plusieurs minutes
+pour un joueur expérimenté. Il n'y a ni niveau à charger, ni sauvegarde de progression :
+seul le meilleur score est conservé d'une session à l'autre.</p>
+
+<div class="kpi">
+  <div><strong>3</strong><span>voies</span></div>
+  <div><strong>3</strong><span>vies</span></div>
+  <div><strong>10 pts/s</strong><span>survie</span></div>
+  <div><strong>×5</strong><span>combo max</span></div>
+</div>
+
+<h3>Genre et plateformes</h3>
+<table>
+  <tr><th>Élément</th><th>Valeur</th></tr>
+  <tr><td>Genre</td><td>Arcade, esquive en vue de dos, difficulté croissante</td></tr>
+  <tr><td>Orientation</td><td>Portrait, 480 × 800 unités de monde (ratio 3:5)</td></tr>
+  <tr><td>Cibles</td><td>Android 7.0 et plus (APK), application de bureau Windows / Linux / macOS</td></tr>
+  <tr><td>Mode</td><td>Solo, hors ligne, sans publicité ni achat</td></tr>
+  <tr><td>Technologie</td><td>Java 17 + libGDX 1.14.2, rendu pseudo-3D en 2D</td></tr>
+</table>
+
+<h2>2. Univers et ambiance</h2>
+
+<p>La scène est une artère urbaine à l'heure où les lampadaires s'allument. Le ciel descend
+d'un bleu nuit vers un rose poussiéreux, un soleil bas rougit l'horizon et se découpe
+derrière les silhouettes d'immeubles. Les fenêtres s'allument une à une, les lampadaires
+projettent un halo chaud sur le bitume, et la route se referme en trapèze vers un point de
+fuite.</p>
+
+<p>Le décor est volontairement dépouillé : pas de texture photographique, seulement des
+aplats et des lumières. Cette sobriété sert deux objectifs — garder une lisibilité parfaite
+à petite taille sur un écran de téléphone, et laisser le regard accroché aux véhicules et
+aux passagers, les seuls éléments qui demandent une réaction.</p>
+
+<div class="figures">
+  <figure>
+    <img src="../captures/jeu.png" alt="Capture d'une partie en cours">
+    <figcaption>Une partie : soleil couchant, immeubles éclairés, trafic et passager.</figcaption>
+  </figure>
+  <figure>
+    <img src="../captures/menu.png" alt="Capture du menu principal">
+    <figcaption>Menu principal : médaillon, meilleur score et options.</figcaption>
+  </figure>
+</div>
+
+<h2>3. Boucle de jeu</h2>
+
+<ol>
+  <li><strong>Survivre.</strong> La route avance toute seule ; chaque seconde passée rapporte
+      des points et rapproche du prochain palier de difficulté.</li>
+  <li><strong>Esquiver.</strong> Voitures, camions et nids-de-poule descendent vers vous.
+      Un contact coûte une vie et une seconde et demie d'invincibilité.</li>
+  <li><strong>Ramasser.</strong> Un passager apparaît environ une fois sur quatre à la place
+      d'un obstacle. Le toucher rapporte des points et allonge un combo.</li>
+  <li><strong>Tenir.</strong> À zéro vie, la partie s'arrête et le score est comparé au record.</li>
+</ol>
+
+<h2>4. Commandes</h2>
+
+<table>
+  <tr><th>Action</th><th>Clavier</th><th>Tactile</th></tr>
+  <tr><td>Aller à gauche</td><td>Flèche gauche ou <code>A</code> / <code>Q</code></td><td>Appui sur la moitié gauche de l'écran</td></tr>
+  <tr><td>Aller à droite</td><td>Flèche droite ou <code>D</code></td><td>Appui sur la moitié droite de l'écran</td></tr>
+  <tr><td>Pause</td><td><code>Échap</code></td><td>Bouton pause en haut au centre, ou bouton Retour Android</td></tr>
+  <tr><td>Naviguer dans un menu</td><td>Flèches haut / bas puis <code>Entrée</code></td><td>Glissement vertical puis appui simple</td></tr>
+  <tr><td>Quitter la pause</td><td><code>Échap</code> ou <code>Retour</code></td><td>Option « Reprendre »</td></tr>
+</table>
+
+<p>Le changement de voie est volontairement contraint : la moto glisse d'une voie à la fois,
+en 0,16 s, avec un adoucissement en début et en fin de mouvement. Un appui supplémentaire
+pendant le glissement est ignoré, ce qui évite les sauts involontaires de deux voies quand
+on tapote vite.</p>
+
+<h2>5. Règles détaillées</h2>
+
+<h3>5.1 La route</h3>
+<ul>
+  <li>Trois voies de largeur égale (160 unités chacune).</li>
+  <li>La moto démarre sur la voie centrale et ne peut jamais sortir de la route : un
+      déplacement au-delà du bord est simplement ignoré.</li>
+  <li>Les pointillés défilent à la vitesse courante ; leur décalage est recalculé en boucle,
+      ce qui donne une impression de mouvement continu sans jamais dériver.</li>
+</ul>
+
+<h3>5.2 Les obstacles</h3>
+<table>
+  <tr><th>Obstacle</th><th>Taille (unités)</th><th>Comportement</th></tr>
+  <tr><td>Voiture</td><td>70 × 110</td><td>Descend à la vitesse de la route, bloque sa voie</td></tr>
+  <tr><td>Camion</td><td>90 × 180</td><td>Plus large et plus haut : masque la vue derrière lui</td></tr>
+  <tr><td>Nid-de-poule</td><td>80 × 80 (aplati à l'écran)</td><td>Posé au sol, moins haut mais aussi pénalisant</td></tr>
+</table>
+
+<p>Une règle de génération garantit qu'il reste toujours au moins deux voies libres : un
+obstacle n'apparaît que si, après son apparition, une voie au moins reste franchissable.
+Le jeu ne peut donc jamais produire de mur infranchissable, même à haute vitesse.</p>
+
+<h3>5.3 Vies et invincibilité</h3>
+<ul>
+  <li>Trois vies au départ, affichées en cœurs en haut à gauche.</li>
+  <li>Un contact retire une vie et déclenche 1,5 s d'invincibilité, pendant laquelle la moto
+      clignote : plusieurs obstacles touchés dans la même fraction de seconde ne coûtent
+      qu'une seule vie.</li>
+  <li>À zéro vie, la partie se termine immédiatement et l'écran de fin affiche le score,
+      le record et le détail de la course.</li>
+</ul>
+
+<h3>5.4 Passagers et score</h3>
+<p>Le score monte de deux façons :</p>
+<ul>
+  <li><strong>Survie :</strong> 10 points par seconde entière écoulée.</li>
+  <li><strong>Courses :</strong> 50 points par passager, multipliés par le rang du combo.
+      Le premier passager rapporte 50, le deuxième 100, le troisième 150, puis le plafond
+      de 250 points par passager à partir du cinquième.</li>
+</ul>
+<p>Un choc casse la série : le compteur de combo repart à zéro. Un passager raté, en
+revanche, ne pénalise pas — il disparaît simplement en bas de l'écran. Le combo est
+affiché au-dessus de la moto, et le bruitage de ramassage monte d'un demi-ton à chaque
+passager de la série, ce qui donne un retour sonore immédiat sur la performance.</p>
+
+<h3>5.5 Difficulté</h3>
+<p>La difficulté ne dépend pas du score mais du temps de jeu écoulé, ce qui évite les
+emballements : un bon joueur ne se retrouve pas puni par son propre score.</p>
+<table>
+  <tr><th>Paramètre</th><th>Départ</th><th>Évolution</th><th>Limite</th></tr>
+  <tr><td>Vitesse de la route</td><td>250 u/s</td><td>+12 u/s par seconde</td><td>700 u/s</td></tr>
+  <tr><td>Intervalle entre apparitions</td><td>1,20 s</td><td>−0,0125 s par seconde</td><td>0,45 s</td></tr>
+</table>
+
+<h3>5.6 Heures de pointe</h3>
+<p>Passé 30 secondes de jeu, la partie alterne des cycles de 30 secondes : les 8 premières
+secondes sont une « heure de pointe », le reste est une accalmie. Pendant une heure de
+pointe, la route accélère et les apparitions se densifient ; l'effet se renforce à chaque
+nouveau cycle, jusqu'à un plafond. Un bandeau « HEURE DE POINTE » s'affiche en haut de
+l'écran pour prévenir du changement de rythme.</p>
+<table>
+  <tr><th>Heure de pointe</th><th>Multiplicateur de vitesse</th><th>Densité des apparitions</th></tr>
+  <tr><td>1<sup>re</sup></td><td>×1,15</td><td>×1,35</td></tr>
+  <tr><td>2<sup>e</sup></td><td>×1,20</td><td>×1,35</td></tr>
+  <tr><td>3<sup>e</sup></td><td>×1,25</td><td>×1,35</td></tr>
+  <tr><td>Plafond</td><td>×1,50</td><td>×1,35</td></tr>
+</table>
+
+<h2 class="page-break">6. Les écrans</h2>
+
+<h3>6.1 Menu principal</h3>
+<p>Le menu affiche le titre, le médaillon photo de l'auteur, le meilleur score courant et
+trois options : <em>Jouer</em>, <em>Son : Oui / Non</em>, <em>Quitter</em>. L'option
+sélectionnée est surlignée en orange. Le réglage du son est mémorisé et s'applique
+immédiatement à la musique et aux bruitages.</p>
+
+<h3>6.2 Partie en cours</h3>
+<p>Le HUD reste minimal : cœurs des vies en haut à gauche, bouton pause au centre,
+score en haut à droite. Le compteur de combo apparaît au-dessus de la moto uniquement
+lorsqu'une série est en cours, et le bandeau d'heure de pointe occupe la zone libre
+au-dessus de l'horizon.</p>
+
+<h3>6.3 Pause</h3>
+<p>La pause fige complètement la partie : ni la route, ni les obstacles, ni le score
+n'avancent. Trois options sont proposées : reprendre, couper le son, revenir au menu.
+Sur Android, le passage de l'application en arrière-plan déclenche automatiquement la
+pause, pour ne pas perdre une course pendant un appel.</p>
+
+<div class="figures">
+  <figure>
+    <img src="../captures/pause.png" alt="Capture de l'écran de pause">
+    <figcaption>Écran de pause.</figcaption>
+  </figure>
+  <figure>
+    <img src="../captures/game-over.png" alt="Capture de l'écran de fin de partie">
+    <figcaption>Fin de partie : score, record et retour au menu.</figcaption>
+  </figure>
+</div>
+
+<h3>6.4 Fin de partie</h3>
+<p>L'écran de fin affiche le score de la course, rappelle le meilleur score et signale
+lorsqu'un nouveau record est établi. Le record est écrit sur le disque à cet instant
+précis, donc conservé même si l'application est fermée brutalement ensuite.</p>
+
+<h2>7. Tableau des valeurs de référence</h2>
+<p>Toutes les valeurs ci-dessous sont centralisées dans
+<code>GameConfig</code> : aucune constante de gameplay n'est écrite en dur dans le reste
+du code.</p>
+<table>
+  <tr><th>Constante</th><th>Valeur</th><th>Rôle</th></tr>
+  <tr><td><code>WORLD_WIDTH × WORLD_HEIGHT</code></td><td>480 × 800</td><td>Écran logique, mis à l'échelle par le viewport</td></tr>
+  <tr><td><code>LANE_COUNT</code></td><td>3</td><td>Nombre de voies</td></tr>
+  <tr><td><code>BIKE_WIDTH × BIKE_HEIGHT</code></td><td>60 × 100</td><td>Taille de la moto</td></tr>
+  <tr><td><code>LANE_CHANGE_DURATION</code></td><td>0,16 s</td><td>Durée du glissement d'une voie</td></tr>
+  <tr><td><code>LIVES_START</code></td><td>3</td><td>Vies initiales</td></tr>
+  <tr><td><code>INVINCIBILITY_DURATION</code></td><td>1,5 s</td><td>Immunité après un choc</td></tr>
+  <tr><td><code>SCORE_PER_SECOND</code></td><td>10</td><td>Points de survie</td></tr>
+  <tr><td><code>SCORE_PER_PASSENGER</code></td><td>50</td><td>Points par passager, avant combo</td></tr>
+  <tr><td><code>PASSENGER_COMBO_MAX</code></td><td>5</td><td>Plafond du multiplicateur</td></tr>
+  <tr><td><code>PASSENGER_SPAWN_ONE_IN</code></td><td>4</td><td>Un passager pour quatre apparitions</td></tr>
+  <tr><td><code>RUSH_START_TIME</code></td><td>30 s</td><td>Première heure de pointe</td></tr>
+  <tr><td><code>RUSH_DURATION</code></td><td>8 s</td><td>Durée d'une heure de pointe</td></tr>
+  <tr><td><code>MUSIC_VOLUME</code> / <code>SOUND_VOLUME</code></td><td>0,35 / 0,80</td><td>Volumes musique et bruitages</td></tr>
+</table>
+
+<h2>8. Ce que le jeu ne fait pas</h2>
+<p>Pour situer clairement le périmètre de cette version :</p>
+<ul>
+  <li>Pas de sauvegarde de partie en cours : quitter pendant une course la perd.</li>
+  <li>Pas de monnaie, de boutique ni de moto à débloquer.</li>
+  <li>Pas de classement en ligne ni de compte : tout est hors ligne.</li>
+  <li>Pas de musique adaptative ; la boucle sonore est unique.</li>
+  <li>Pas de mode paysage : l'interface est verrouillée en portrait.</li>
+</ul>
+
+</body>
+</html>
