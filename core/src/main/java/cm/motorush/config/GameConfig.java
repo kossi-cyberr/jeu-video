@@ -120,6 +120,9 @@ public final class GameConfig {
     /** Distance minimale d'un glissement tactile pour changer d'option, en fraction de la hauteur de l'ecran. */
     public static final float MENU_TOUCH_SWIPE_FRACTION = 0.05f;
     public static final float MENU_TITLE_Y = 620f;
+    /** Diametre et ordonnee du centre du medaillon photo, au-dessus du titre. */
+    public static final float MENU_PORTRAIT_SIZE = 110f;
+    public static final float MENU_PORTRAIT_Y = 730f;
     public static final float MENU_SUBTITLE_Y = 540f;
     /** Ordonnee du centre de la premiere option. */
     public static final float MENU_FIRST_OPTION_Y = 400f;

@@ -1,6 +1,7 @@
 package cm.motorush.render;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,6 +24,9 @@ public class MenuRenderer {
     /** Nul quand l'ecran n'a pas de sous-titre. */
     private GlyphLayout subtitleLayout;
     private final GlyphLayout[] optionLayouts;
+    /** Nul quand l'ecran n'affiche pas de medaillon photo. */
+    private Texture portrait;
+
     public MenuRenderer(String title, String subtitle, String[] options) {
         this.shapes = new ShapeRenderer();
         this.batch = new SpriteBatch();
@@ -58,6 +62,13 @@ public class MenuRenderer {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
+        if (portrait != null) {
+            batch.draw(portrait,
+                    (GameConfig.WORLD_WIDTH - GameConfig.MENU_PORTRAIT_SIZE) / 2f,
+                    GameConfig.MENU_PORTRAIT_Y - GameConfig.MENU_PORTRAIT_SIZE / 2f,
+                    GameConfig.MENU_PORTRAIT_SIZE, GameConfig.MENU_PORTRAIT_SIZE);
+        }
+
         font.getData().setScale(GameConfig.MENU_TITLE_FONT_SCALE);
         font.setColor(GameConfig.MENU_TITLE_COLOR.r, GameConfig.MENU_TITLE_COLOR.g,
                 GameConfig.MENU_TITLE_COLOR.b, 1f);
@@ -89,6 +100,11 @@ public class MenuRenderer {
                 GameConfig.MENU_AUTHOR_Y);
 
         batch.end();
+    }
+
+    /** Affiche un medaillon rond au-dessus du titre (menu principal). */
+    public void setPortrait(Texture portrait) {
+        this.portrait = portrait;
     }
 
     /** Remplace le libelle d'une option, par exemple l'etat du son. */

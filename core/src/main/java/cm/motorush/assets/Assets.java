@@ -19,6 +19,7 @@ public class Assets {
     private static final String POTHOLE = "sprites/pothole.png";
     private static final String PASSENGER = "sprites/passenger.png";
     private static final String HEART = "sprites/heart.png";
+    private static final String PORTRAIT = "sprites/portrait.png";
 
     private static final String CRASH_SOUND = "sounds/crash.wav";
     private static final String PICKUP_SOUND = "sounds/pickup.wav";
@@ -32,6 +33,7 @@ public class Assets {
     private final Texture pothole;
     private final Texture passenger;
     private final Texture heart;
+    private final Texture portrait;
     private final Sound crashSound;
     private final Sound pickupSound;
     private final Music themeMusic;
@@ -43,6 +45,7 @@ public class Assets {
         manager.load(POTHOLE, Texture.class);
         manager.load(PASSENGER, Texture.class);
         manager.load(HEART, Texture.class);
+        manager.load(PORTRAIT, Texture.class);
         manager.load(CRASH_SOUND, Sound.class);
         manager.load(PICKUP_SOUND, Sound.class);
         manager.load(THEME_MUSIC, Music.class);
@@ -54,6 +57,7 @@ public class Assets {
         pothole = loadTexture(POTHOLE);
         passenger = loadTexture(PASSENGER);
         heart = loadTexture(HEART);
+        portrait = loadTexture(PORTRAIT);
         crashSound = manager.get(CRASH_SOUND, Sound.class);
         pickupSound = manager.get(PICKUP_SOUND, Sound.class);
         themeMusic = manager.get(THEME_MUSIC, Music.class);
@@ -88,6 +92,11 @@ public class Assets {
 
     public Texture getHeartTexture() {
         return heart;
+    }
+
+    /** Medaillon de l'auteur affiche sur le menu principal. */
+    public Texture getPortraitTexture() {
+        return portrait;
     }
 
     public Sound getCrashSound() {

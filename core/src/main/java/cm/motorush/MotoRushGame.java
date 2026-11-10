@@ -49,6 +49,10 @@ public class MotoRushGame extends Game {
         }
     }
 
+    public Assets getAssets() {
+        return assets;
+    }
+
     public int getHighScore() {
         return highScoreStore.getHighScore();
     }

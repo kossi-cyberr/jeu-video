@@ -14,6 +14,7 @@ public class MenuScreen extends AbstractMenuScreen {
 
     public MenuScreen(MotoRushGame game) {
         super(game, "Moto-Taxi Rush", null, "Jouer", "Son : Oui", "Quitter");
+        setPortrait(game.getAssets().getPortraitTexture());
     }
 
     @Override

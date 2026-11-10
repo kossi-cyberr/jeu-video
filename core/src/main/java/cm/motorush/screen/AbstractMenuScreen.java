@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -113,6 +114,11 @@ public abstract class AbstractMenuScreen implements Screen {
      *         comme le bouton Son.
      */
     protected abstract boolean onOptionSelected(int index);
+
+    /** Affiche le medaillon photo au-dessus du titre ; absent par defaut. */
+    protected void setPortrait(Texture portrait) {
+        renderer.setPortrait(portrait);
+    }
 
     /** Met a jour le libelle d'une option, par exemple son etat (etape 9). */
     protected void setOptionLabel(int index, String label) {
