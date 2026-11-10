@@ -2,6 +2,7 @@ package cm.motorush;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import cm.motorush.assets.Assets;
 import cm.motorush.audio.AudioManager;
 import cm.motorush.screen.GameOverScreen;
@@ -30,7 +31,22 @@ public class MotoRushGame extends Game {
         audio = new AudioManager(assets);
         highScoreStore = new HighScoreStore();
         menuScreen = new MenuScreen(this);
+        // Le bouton Retour doit etre recu par les ecrans (pause) au lieu de
+        // fermer l'application. Il est mappe dans les ecrans concernes.
+        Gdx.input.setCatchKey(Input.Keys.BACK, true);
         setScreen(menuScreen);
+    }
+
+    /**
+     * Passage de l'application en arriere-plan (appel, bouton d'accueil) :
+     * la partie en cours se met en pause plutot que de continuer a l'aveugle.
+     */
+    @Override
+    public void pause() {
+        super.pause();
+        if (playScreen != null && getScreen() == playScreen) {
+            pauseGame();
+        }
     }
 
     public int getHighScore() {

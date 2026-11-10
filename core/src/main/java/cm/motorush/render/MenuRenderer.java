@@ -19,10 +19,10 @@ public class MenuRenderer {
     private final BitmapFont font;
 
     private final GlyphLayout titleLayout;
+    private final GlyphLayout authorLayout;
     /** Nul quand l'ecran n'a pas de sous-titre. */
     private GlyphLayout subtitleLayout;
     private final GlyphLayout[] optionLayouts;
-
     public MenuRenderer(String title, String subtitle, String[] options) {
         this.shapes = new ShapeRenderer();
         this.batch = new SpriteBatch();
@@ -30,6 +30,9 @@ public class MenuRenderer {
 
         font.getData().setScale(GameConfig.MENU_TITLE_FONT_SCALE);
         this.titleLayout = new GlyphLayout(font, title);
+
+        font.getData().setScale(GameConfig.MENU_AUTHOR_FONT_SCALE);
+        this.authorLayout = new GlyphLayout(font, "par " + GameConfig.AUTHOR_NAME);
 
         font.getData().setScale(GameConfig.MENU_FONT_SCALE);
         setSubtitle(subtitle);
@@ -78,6 +81,12 @@ public class MenuRenderer {
                     (GameConfig.WORLD_WIDTH - optionLayouts[i].width) / 2f,
                     optionCenterY(i) + optionLayouts[i].height / 2f);
         }
+
+        font.getData().setScale(GameConfig.MENU_AUTHOR_FONT_SCALE);
+        font.setColor(GameConfig.MENU_TEXT_COLOR.r, GameConfig.MENU_TEXT_COLOR.g,
+                GameConfig.MENU_TEXT_COLOR.b, 1f);
+        font.draw(batch, authorLayout, (GameConfig.WORLD_WIDTH - authorLayout.width) / 2f,
+                GameConfig.MENU_AUTHOR_Y);
 
         batch.end();
     }

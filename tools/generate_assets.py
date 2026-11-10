@@ -61,86 +61,125 @@ def save_sprite(image, width, height, name):
 
 
 def draw_bike():
+    """Moto vue de dos, telle qu'elle apparait dans la camera pseudo-3D."""
     img = new_sprite(60, 100)
     d = ImageDraw.Draw(img)
 
-    # Roues avant et arriere.
-    rounded(d, (23, 14, 37, 32), 6, fill=(28, 28, 30), outline=(10, 10, 12))
-    rounded(d, (23, 68, 37, 86), 6, fill=(28, 28, 30), outline=(10, 10, 12))
-    rounded(d, (26, 18, 34, 28), 3, fill=(70, 70, 75))
-    rounded(d, (26, 72, 34, 82), 3, fill=(70, 70, 75))
+    # Ombre portee au sol.
+    ellipse(d, (12, 88, 48, 99), fill=(0, 0, 0, 90))
 
-    # Chassis, reservoir et selle.
-    rounded(d, (21, 24, 39, 82), 7, fill=(232, 122, 36), outline=(105, 48, 12))
-    ellipse(d, (21, 30, 39, 48), fill=(246, 150, 55), outline=(150, 70, 20))
-    rounded(d, (24, 48, 36, 62), 4, fill=(40, 34, 32), outline=(20, 16, 14))
+    # Roue arriere.
+    rounded(d, (23, 62, 37, 97), 7, fill=(28, 28, 31), outline=(10, 10, 12))
+    rounded(d, (27, 68, 33, 90), 3, fill=(62, 62, 68))
 
-    # Caisse de livraison a l'arriere.
-    rounded(d, (19, 54, 41, 73), 4, fill=(240, 196, 48), outline=(135, 95, 15))
-    rounded(d, (19, 62, 41, 65), 1, fill=(150, 105, 25))
+    # Echappement.
+    rounded(d, (38, 72, 47, 92), 4, fill=(150, 150, 158), outline=(82, 82, 90))
+    rounded(d, (38, 88, 47, 93), 3, fill=(60, 60, 66))
 
-    # Guidon et poignees.
-    rounded(d, (9, 27, 51, 32), 2, fill=(120, 120, 125), outline=(60, 60, 65))
-    rounded(d, (7, 26, 15, 33), 3, fill=(25, 25, 28))
-    rounded(d, (45, 26, 53, 33), 3, fill=(25, 25, 28))
+    # Jambes du pilote de chaque cote de la selle.
+    rounded(d, (18, 48, 26, 68), 4, fill=(45, 48, 62), outline=(20, 22, 30))
+    rounded(d, (34, 48, 42, 68), 4, fill=(45, 48, 62), outline=(20, 22, 30))
 
-    # Phare avant.
-    ellipse(d, (26, 30, 34, 36), fill=(255, 240, 170), outline=(160, 140, 80))
+    # Dos du pilote (veste orange).
+    rounded(d, (18, 20, 42, 50), 7, fill=(232, 122, 36), outline=(105, 48, 12))
 
-    # Pilote : casque, visiere et epaules.
-    rounded(d, (17, 42, 43, 54), 6, fill=(55, 55, 70), outline=(25, 25, 35))
-    ellipse(d, (23, 34, 37, 47), fill=(248, 248, 242), outline=(60, 60, 70))
-    rounded(d, (26, 37, 34, 42), 2, fill=(45, 85, 135))
+    # Bras tendus vers le guidon.
+    rounded(d, (9, 24, 19, 32), 4, fill=(232, 122, 36), outline=(105, 48, 12))
+    rounded(d, (41, 24, 51, 32), 4, fill=(232, 122, 36), outline=(105, 48, 12))
+
+    # Guidon, poignees et retroviseurs.
+    rounded(d, (6, 20, 54, 24), 2, fill=(120, 120, 128), outline=(60, 60, 66))
+    rounded(d, (4, 18, 12, 25), 3, fill=(25, 25, 28))
+    rounded(d, (48, 18, 56, 25), 3, fill=(25, 25, 28))
+    ellipse(d, (1, 12, 9, 19), fill=(40, 40, 46))
+    ellipse(d, (51, 12, 59, 19), fill=(40, 40, 46))
+
+    # Casque vu de dos.
+    ellipse(d, (21, 3, 39, 26), fill=(248, 248, 242), outline=(60, 60, 70))
+    arc(d, (22, 5, 38, 24), 200, 340, fill=(55, 55, 70), width=2)
+
+    # Caisse de livraison, montee derriere la selle.
+    rounded(d, (15, 40, 45, 70), 5, fill=(240, 196, 48), outline=(135, 95, 15))
+    rounded(d, (15, 47, 45, 50), 1, fill=(150, 105, 25))
+    rounded(d, (15, 58, 45, 61), 1, fill=(150, 105, 25))
+    rounded(d, (25, 50, 35, 58), 2, fill=(240, 210, 90))
+
+    # Feu arriere et clignotants.
+    rounded(d, (25, 66, 35, 71), 2, fill=(236, 62, 50), outline=(120, 22, 20))
+    ellipse(d, (11, 64, 19, 70), fill=(240, 140, 30))
+    ellipse(d, (41, 64, 49, 70), fill=(240, 140, 30))
 
     save_sprite(img, 60, 100, "bike.png")
 
 
 def draw_car():
+    """Voiture vue de dos : lunette, feux rouges, pare-chocs et plaque."""
     img = new_sprite(70, 110)
     d = ImageDraw.Draw(img)
 
-    # Roues qui depassent legerement de la carrosserie.
-    for y in (16, 74):
-        rounded(d, (3, y, 12, y + 22), 3, fill=(25, 25, 28))
-        rounded(d, (58, y, 67, y + 22), 3, fill=(25, 25, 28))
+    # Ombre portee au sol.
+    ellipse(d, (5, 98, 65, 109), fill=(0, 0, 0, 90))
 
-    # Carrosserie vue du dessus, avant en bas.
-    rounded(d, (5, 5, 65, 105), 12, fill=(196, 44, 42), outline=(88, 16, 16))
-    rounded(d, (13, 16, 57, 36), 5, fill=(55, 95, 135), outline=(25, 40, 60))
-    rounded(d, (13, 37, 57, 62), 4, fill=(158, 30, 28))
-    rounded(d, (12, 63, 58, 87), 5, fill=(60, 100, 140), outline=(25, 40, 60))
-    rounded(d, (14, 89, 56, 101), 4, fill=(172, 35, 33))
+    # Roues arriere.
+    for x in (1, 55):
+        rounded(d, (x, 78, x + 14, 101), 3, fill=(25, 25, 28), outline=(10, 10, 12))
+        rounded(d, (x + 4, 84, x + 10, 96), 2, fill=(62, 62, 68))
 
-    # Phares, feux arriere et retroviseurs.
-    ellipse(d, (11, 96, 24, 105), fill=(255, 240, 160), outline=(140, 120, 60))
-    ellipse(d, (46, 96, 59, 105), fill=(255, 240, 160), outline=(140, 120, 60))
-    rounded(d, (12, 7, 25, 13), 2, fill=(232, 70, 60))
-    rounded(d, (45, 7, 58, 13), 2, fill=(232, 70, 60))
-    rounded(d, (1, 66, 8, 73), 2, fill=(80, 20, 20))
-    rounded(d, (62, 66, 69, 73), 2, fill=(80, 20, 20))
+    # Carrosserie.
+    rounded(d, (5, 12, 65, 102), 10, fill=(196, 44, 42), outline=(88, 16, 16))
+
+    # Lunette arriere.
+    rounded(d, (14, 20, 56, 44), 5, fill=(55, 95, 135), outline=(25, 40, 60))
+    rounded(d, (18, 24, 34, 40), 3, fill=(70, 112, 152))
+
+    # Coffre.
+    rounded(d, (11, 46, 59, 80), 4, fill=(176, 36, 34), outline=(110, 20, 18))
+
+    # Feux arriere.
+    rounded(d, (10, 62, 24, 80), 3, fill=(236, 62, 50), outline=(120, 22, 20))
+    rounded(d, (46, 62, 60, 80), 3, fill=(236, 62, 50), outline=(120, 22, 20))
+    rounded(d, (13, 66, 21, 74), 2, fill=(255, 150, 120))
+    rounded(d, (49, 66, 57, 74), 2, fill=(255, 150, 120))
+
+    # Pare-chocs et plaque.
+    rounded(d, (6, 86, 64, 100), 4, fill=(98, 18, 18), outline=(62, 10, 10))
+    rounded(d, (28, 88, 42, 96), 2, fill=(232, 230, 220), outline=(150, 150, 145))
 
     save_sprite(img, 70, 110, "car.png")
 
 
 def draw_truck():
+    """Camion vu de dos : portes de la remorque, pare-chocs et feux."""
     img = new_sprite(90, 180)
     d = ImageDraw.Draw(img)
 
-    # Roues du camion.
-    for y in (16, 58, 130, 160):
-        rounded(d, (2, y, 12, y + 22), 3, fill=(25, 25, 28))
-        rounded(d, (78, y, 88, y + 22), 3, fill=(25, 25, 28))
+    # Ombre portee au sol.
+    ellipse(d, (8, 166, 82, 179), fill=(0, 0, 0, 90))
 
-    # Remorque puis cabine, avant en bas.
-    rounded(d, (9, 5, 81, 112), 8, fill=(70, 105, 160), outline=(30, 50, 90))
-    rounded(d, (14, 20, 76, 106), 4, outline=(45, 72, 118))
-    rounded(d, (11, 116, 79, 173), 8, fill=(45, 80, 140), outline=(20, 35, 70))
-    rounded(d, (17, 149, 73, 167), 4, fill=(60, 100, 140), outline=(25, 40, 60))
+    # Roues arriere doubles.
+    for x in (1, 73):
+        for y in (128, 146):
+            rounded(d, (x, y, x + 16, y + 20), 3, fill=(25, 25, 28), outline=(10, 10, 12))
 
-    # Phares et calandre.
-    ellipse(d, (15, 163, 28, 174), fill=(255, 240, 160), outline=(140, 120, 60))
-    ellipse(d, (62, 163, 75, 174), fill=(255, 240, 160), outline=(140, 120, 60))
-    rounded(d, (33, 168, 57, 174), 2, fill=(30, 30, 35))
+    # Caisse de la remorque.
+    rounded(d, (5, 18, 85, 152), 6, fill=(70, 105, 160), outline=(30, 50, 90))
+
+    # Portes arriere.
+    rounded(d, (10, 26, 43, 144), 3, outline=(45, 72, 118))
+    rounded(d, (47, 26, 80, 144), 3, outline=(45, 72, 118))
+    rounded(d, (43, 24, 47, 146), 1, fill=(40, 62, 100))
+    rounded(d, (26, 76, 36, 82), 2, fill=(150, 150, 158))
+    rounded(d, (54, 76, 64, 82), 2, fill=(150, 150, 158))
+
+    # Feux de gabarit en haut de caisse.
+    for x in (16, 40, 64):
+        rounded(d, (x, 13, x + 8, 19), 2, fill=(240, 140, 30))
+
+    # Pare-chocs et feux arriere.
+    rounded(d, (4, 150, 86, 166), 3, fill=(62, 62, 68), outline=(30, 30, 35))
+    rounded(d, (8, 153, 22, 163), 2, fill=(236, 62, 50), outline=(120, 22, 20))
+    rounded(d, (68, 153, 82, 163), 2, fill=(236, 62, 50), outline=(120, 22, 20))
+    rounded(d, (36, 154, 54, 163), 2, fill=(232, 230, 220), outline=(150, 150, 145))
 
     save_sprite(img, 90, 180, "truck.png")
 

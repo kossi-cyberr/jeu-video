@@ -26,6 +26,8 @@ public abstract class AbstractMenuScreen implements Screen {
     private final String[] options;
 
     private int selected;
+    /** Ordonnee du debut du toucher courant, -1 hors toucher. */
+    private int touchStartY = -1;
 
     protected AbstractMenuScreen(MotoRushGame game, String title, String subtitle, String... options) {
         this.game = game;
@@ -61,6 +63,13 @@ public abstract class AbstractMenuScreen implements Screen {
      * @return vrai si une option a change d'ecran.
      */
     protected boolean handleInput() {
+        if (handleTouch()) {
+            return true;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+            // Retour Android : derniere option de l'ecran (Quitter ou Menu).
+            return onOptionSelected(options.length - 1);
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             selected = (selected + options.length - 1) % options.length;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
@@ -72,6 +81,29 @@ public abstract class AbstractMenuScreen implements Screen {
             return onOptionSelected(selected);
         }
         return false;
+    }
+
+    /**
+     * Commandes tactiles : un glissement vertical change d'option, un
+     * appui simple valide l'option courante.
+     *
+     * @return vrai si une option a change d'ecran.
+     */
+    private boolean handleTouch() {
+        if (Gdx.input.justTouched()) {
+            touchStartY = Gdx.input.getY();
+        }
+        if (touchStartY < 0 || Gdx.input.isTouched()) {
+            return false;
+        }
+
+        int deltaY = Gdx.input.getY() - touchStartY;
+        touchStartY = -1;
+        if (Math.abs(deltaY) > Gdx.graphics.getHeight() * GameConfig.MENU_TOUCH_SWIPE_FRACTION) {
+            selected = (selected + (deltaY > 0 ? 1 : options.length - 1)) % options.length;
+            return false;
+        }
+        return onOptionSelected(selected);
     }
 
     /**

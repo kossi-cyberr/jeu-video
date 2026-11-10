@@ -23,10 +23,11 @@ public class PauseScreen extends AbstractMenuScreen {
         refreshSoundOption();
     }
 
-    /** Echap quitte aussi la pause (controle du cahier). */
+    /** Echap ou Retour quittent aussi la pause (controle du cahier). */
     @Override
     protected boolean handleInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
+                || Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             game.resumeGame();
             return true;
         }
