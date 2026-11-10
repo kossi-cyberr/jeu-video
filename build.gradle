@@ -10,7 +10,8 @@ allprojects {
   }
 }
 
-configure(subprojects) {
+// Les modules desktop et partage sont en Java pur ; android a son propre plugin.
+configure([project(':core'), project(':lwjgl3')]) {
   apply plugin: 'java-library'
   java.sourceCompatibility = 17
   java.targetCompatibility = 17
@@ -37,6 +38,7 @@ subprojects {
   ext.appName = 'Moto-Taxi-Rush'
 
   repositories {
+    google()
     mavenCentral()
   }
 }

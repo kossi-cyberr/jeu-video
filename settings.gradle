@@ -1,2 +1,11 @@
-// Projet Moto-Taxi Rush : deux modules, core (logique + rendu partages) et lwjgl3 (desktop).
-include 'core', 'lwjgl3'
+// Projet Moto-Taxi Rush : trois modules, core (logique + rendu partages),
+// lwjgl3 (desktop) et android (APK).
+pluginManagement {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+include 'core', 'lwjgl3', 'android'
