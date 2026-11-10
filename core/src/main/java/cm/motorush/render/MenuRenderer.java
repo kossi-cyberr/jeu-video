@@ -1,6 +1,7 @@
 package cm.motorush.render;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,9 +20,12 @@ public class MenuRenderer {
     private final BitmapFont font;
 
     private final GlyphLayout titleLayout;
+    private final GlyphLayout authorLayout;
     /** Nul quand l'ecran n'a pas de sous-titre. */
     private GlyphLayout subtitleLayout;
     private final GlyphLayout[] optionLayouts;
+    /** Nul quand l'ecran n'affiche pas de medaillon photo. */
+    private Texture portrait;
 
     public MenuRenderer(String title, String subtitle, String[] options) {
         this.shapes = new ShapeRenderer();
@@ -30,6 +34,9 @@ public class MenuRenderer {
 
         font.getData().setScale(GameConfig.MENU_TITLE_FONT_SCALE);
         this.titleLayout = new GlyphLayout(font, title);
+
+        font.getData().setScale(GameConfig.MENU_AUTHOR_FONT_SCALE);
+        this.authorLayout = new GlyphLayout(font, "par " + GameConfig.AUTHOR_NAME);
 
         font.getData().setScale(GameConfig.MENU_FONT_SCALE);
         setSubtitle(subtitle);
@@ -55,6 +62,13 @@ public class MenuRenderer {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
+        if (portrait != null) {
+            batch.draw(portrait,
+                    (GameConfig.WORLD_WIDTH - GameConfig.MENU_PORTRAIT_SIZE) / 2f,
+                    GameConfig.MENU_PORTRAIT_Y - GameConfig.MENU_PORTRAIT_SIZE / 2f,
+                    GameConfig.MENU_PORTRAIT_SIZE, GameConfig.MENU_PORTRAIT_SIZE);
+        }
+
         font.getData().setScale(GameConfig.MENU_TITLE_FONT_SCALE);
         font.setColor(GameConfig.MENU_TITLE_COLOR.r, GameConfig.MENU_TITLE_COLOR.g,
                 GameConfig.MENU_TITLE_COLOR.b, 1f);
@@ -79,7 +93,18 @@ public class MenuRenderer {
                     optionCenterY(i) + optionLayouts[i].height / 2f);
         }
 
+        font.getData().setScale(GameConfig.MENU_AUTHOR_FONT_SCALE);
+        font.setColor(GameConfig.MENU_TEXT_COLOR.r, GameConfig.MENU_TEXT_COLOR.g,
+                GameConfig.MENU_TEXT_COLOR.b, 1f);
+        font.draw(batch, authorLayout, (GameConfig.WORLD_WIDTH - authorLayout.width) / 2f,
+                GameConfig.MENU_AUTHOR_Y);
+
         batch.end();
+    }
+
+    /** Affiche un medaillon rond au-dessus du titre (menu principal). */
+    public void setPortrait(Texture portrait) {
+        this.portrait = portrait;
     }
 
     /** Remplace le libelle d'une option, par exemple l'etat du son. */

@@ -12,6 +12,8 @@ public class Road {
     private static final float DASH_PERIOD = GameConfig.DASH_LENGTH + GameConfig.DASH_GAP;
 
     private float dashOffset;
+    /** Distance parcourue depuis le debut, pour caler le decor (lampadaires). */
+    private float scroll;
 
     /** Avance les pointilles vers le bas (vers le joueur). */
     public void update(float delta, float speed) {
@@ -19,6 +21,12 @@ public class Road {
         if (dashOffset < 0f) {
             dashOffset += DASH_PERIOD;
         }
+        scroll += speed * delta;
+    }
+
+    /** Distance totale defilee depuis le debut de la partie. */
+    public float getScroll() {
+        return scroll;
     }
 
     /** Decalage courant, toujours dans [0, DASH_PERIOD). */
@@ -28,5 +36,6 @@ public class Road {
 
     public void reset() {
         dashOffset = 0f;
+        scroll = 0f;
     }
 }
